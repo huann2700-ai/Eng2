@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TED Learn — 精選 TED 英文學習</title>
+<style>
+:root {
+  --bg:#0d0d0d; --bg2:#141414; --bg3:#1c1c1c; --bg4:#252525;
+  --border:#2a2a2a; --text:#e8e8e8; --text2:#888; --text3:#444;
+  --red:#e62b1e; --red2:#ff5c54; --gold:#f5a623;
+  --hl:rgba(230,43,30,.13); --hl-b:#e62b1e;
+  --word-h:rgba(230,43,30,.18); --aw:#ff6b60;
+  --btn:#1e1e1e; --btn-h:#282828;
+  --shadow:0 8px 40px rgba(0,0,0,.7);
+  --r:10px;
+}
+[data-theme="light"]{
+  --bg:#f2f4f7; --bg2:#fff; --bg3:#e8ebf0; --bg4:#dce0e8;
+  --border:#d0d5dd; --text:#111827; --text2:#6b7280; --text3:#cbd5e1;
+  --hl:rgba(230,43,30,.07); --hl-b:#e62b1e;
+  --word-h:rgba(230,43,30,.12); --aw:#c0392b;
+  --btn:#e8ebf0; --btn-h:#dce0e8; --shadow:0 4px 20px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);display:flex;flex-direction:column;transition:background .3s,color .3s}
+
+/* ── HEADER ── */
+header{
+  display:flex;align-items:center;gap:0;padding:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.header-left{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  border-right:1px solid var(--border);flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.logo-badge{
+  background:var(--red);color:#fff;font-weight:900;font-size:.85rem;
+  padding:3px 8px;border-radius:5px;letter-spacing:.5px;
+}
+.logo-text{font-weight:700;font-size:1rem;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:.7rem;color:var(--text2);font-weight:400}
+
+/* ── CATEGORY TABS ── */
+#cat-bar{
+  display:flex;align-items:center;gap:2px;padding:8px 12px;
+  overflow-x:auto;flex:1;scrollbar-width:none;
+}
+#cat-bar::-webkit-scrollbar{display:none}
+.cat-btn{
+  padding:5px 13px;border-radius:20px;border:1px solid transparent;
+  background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem;
+  font-weight:600;transition:all .15s;white-space:nowrap;
+}
+.cat-btn:hover{background:var(--bg3);color:var(--text)}
+.cat-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+.header-right{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  border-left:1px solid var(--border);flex-shrink:0;
+}
+.ibtn{
+  background:var(--btn);border:1px solid var(--border);color:var(--text2);
+  padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;
+  transition:all .15s;white-space:nowrap;
+}
+.ibtn:hover{background:var(--btn-h);color:var(--text)}
+.ibtn.on{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── MAIN ── */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+#left{
+  width:320px;min-width:260px;flex-shrink:0;
+  display:flex;flex-direction:column;background:var(--bg2);
+  border-right:1px solid var(--border);overflow:hidden;
+}
+#search-wrap{
+  padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+#talk-search{
+  width:100%;padding:7px 10px;border-radius:7px;
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  font-size:.82rem;outline:none;transition:border-color .2s;
+}
+#talk-search:focus{border-color:var(--red)}
+#talk-search::placeholder{color:var(--text3)}
+
+#talk-list{flex:1;overflow-y:auto;padding:6px}
+#talk-list::-webkit-scrollbar{width:4px}
+#talk-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.talk-card{
+  display:flex;align-items:flex-start;gap:9px;padding:9px 8px;
+  border-radius:8px;cursor:pointer;transition:background .15s;
+  border:1px solid transparent;margin-bottom:2px;
+}
+.talk-card:hover{background:var(--bg3)}
+.talk-card.active{background:var(--hl);border-color:var(--hl-b)}
+.talk-thumb{
+  width:72px;height:46px;border-radius:5px;object-fit:cover;
+  background:var(--bg4);flex-shrink:0;
+}
+.talk-info{flex:1;min-width:0}
+.talk-title{
+  font-size:.8rem;font-weight:700;color:var(--text);
+  line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+.talk-card.active .talk-title{color:var(--red2)}
+.talk-meta{
+  display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;
+}
+.talk-speaker{font-size:.7rem;color:var(--text2)}
+.talk-tag{
+  font-size:.64rem;background:var(--bg4);color:var(--text2);
+  padding:1px 6px;border-radius:3px;
+}
+.talk-dur{font-size:.65rem;color:var(--text3);margin-left:auto}
+
+/* ── MIDDLE: PLAYER ── */
+#middle{
+  flex:1;display:flex;flex-direction:column;background:#000;
+  border-right:1px solid var(--border);min-width:0;
+}
+#player-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;flex-shrink:0}
+#player-wrap>*{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+#ted-embed{display:none}
+#yt-player-div{display:none}
+#placeholder-mid{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--text3);gap:12px;font-size:.9rem;text-align:center;padding:30px;background:#000;
+}
+.ph-big{font-size:3.5rem}
+.ph-hint{font-size:.78rem;color:var(--text3)}
+
+/* Info bar */
+#info-bar{
+  display:none;align-items:center;gap:10px;padding:8px 14px;
+  background:linear-gradient(90deg,rgba(230,43,30,.15),transparent);
+  border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;
+}
+#info-bar.show{display:flex}
+#ib-thumb{width:52px;height:33px;border-radius:4px;object-fit:cover;background:var(--bg4)}
+#ib-meta{flex:1;min-width:0}
+#ib-title{font-size:.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ib-speaker{font-size:.72rem;color:var(--text2)}
+#ib-views{font-size:.7rem;color:var(--text3);margin-left:auto;white-space:nowrap}
+.ted-badge{background:var(--red);color:#fff;font-size:.65rem;font-weight:800;padding:2px 6px;border-radius:4px;flex-shrink:0}
+
+/* Controls */
+#controls{
+  display:flex;align-items:center;gap:8px;padding:8px 12px;
+  background:var(--bg2);border-top:1px solid var(--border);flex-wrap:wrap;flex-shrink:0;
+}
+.cbtn{
+  background:var(--btn);border:1px solid var(--border);color:var(--text);
+  padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.8rem;
+  transition:background .15s;white-space:nowrap;
+}
+.cbtn:hover{background:var(--btn-h)}
+.cbtn.on{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+select.csel{
+  background:var(--btn);border:1px solid var(--border);color:var(--text);
+  padding:5px 7px;border-radius:7px;cursor:pointer;font-size:.8rem;
+}
+.clabel{font-size:.73rem;color:var(--text2)}
+#fs-range{
+  -webkit-appearance:none;appearance:none;width:65px;height:3px;
+  background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+}
+#fs-range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;
+  border-radius:50%;background:var(--red);cursor:pointer;
+}
+
+/* Progress bar */
+#progress-wrap{
+  height:3px;background:var(--bg3);position:relative;cursor:pointer;flex-shrink:0;
+}
+#progress-bar{height:100%;background:var(--red);width:0;transition:width .3s linear;pointer-events:none}
+#progress-wrap:hover #progress-bar{height:5px;margin-top:-1px}
+
+/* ── RIGHT: CAPTIONS ── */
+#right{
+  width:360px;min-width:260px;flex-shrink:0;display:flex;
+  flex-direction:column;background:var(--bg);overflow:hidden;
+}
+#cap-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--border);
+  flex-shrink:0;flex-wrap:wrap;gap:5px;
+}
+.ch-l{display:flex;align-items:center;gap:7px}
+.ch-title{font-size:.78rem;font-weight:700;color:var(--text2)}
+#cap-status{font-size:.72rem;color:var(--red);font-weight:600}
+.ch-r{display:flex;gap:5px}
+.sm-btn{
+  font-size:.72rem;background:var(--btn);border:1px solid var(--border);
+  color:var(--text2);padding:3px 8px;border-radius:5px;cursor:pointer;transition:all .15s;
+}
+.sm-btn:hover{background:var(--btn-h);color:var(--text)}
+.sm-btn.on{background:var(--red);color:#fff;border-color:var(--red)}
+
+#cap-list{flex:1;overflow-y:auto;padding:8px 6px;scroll-behavior:smooth}
+#cap-list::-webkit-scrollbar{width:4px}
+#cap-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* Caption item */
+.ci{
+  padding:9px 11px;margin-bottom:4px;border-radius:8px;
+  border-left:3px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;
+}
+.ci:hover{background:var(--bg3)}
+.ci.active{background:var(--hl);border-left-color:var(--hl-b)}
+.ci-time{font-size:.67rem;color:var(--text3);margin-bottom:3px}
+.ci-en{font-size:var(--cfz,1rem);line-height:1.65;color:var(--text)}
+.ci-zh{
+  font-size:calc(var(--cfz,1rem)*.8);color:var(--text2);margin-top:3px;
+  display:none;font-style:italic;line-height:1.4;
+}
+.ci-zh.show{display:block}
+
+/* word */
+.w{
+  display:inline-block;cursor:pointer;padding:1px 2px;border-radius:3px;
+  position:relative;transition:background .1s;
+}
+.w:hover{background:var(--word-h)}
+.w.aw{color:var(--aw);font-weight:700;animation:wb .25s ease}
+@keyframes wb{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-4px) scale(1.1)}100%{transform:translateY(0)}}
+
+/* tooltip */
+.dt{
+  display:none;position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);background:var(--bg2);border:1px solid var(--red);
+  border-radius:10px;padding:9px 13px;min-width:165px;max-width:220px;
+  box-shadow:var(--shadow);z-index:999;pointer-events:none;font-size:.78rem;line-height:1.5;
+}
+.w:hover .dt{display:block}
+.dt-w{font-weight:800;color:var(--red2);font-size:.9rem}
+.dt-ph{color:var(--text2);font-size:.72rem}
+.dt-pos{color:var(--gold);font-size:.7rem;margin-top:2px}
+.dt-def{color:var(--text);margin-top:2px}
+.dt-ex{color:var(--text2);font-style:italic;font-size:.72rem;margin-top:2px;border-top:1px solid var(--border);padding-top:3px;margin-top:4px}
+
+/* No content */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:var(--text3);gap:8px;font-size:.85rem;text-align:center;padding:20px;
+}
+
+/* kbd */
+#kbds{
+  padding:5px 12px;background:var(--bg2);border-top:1px solid var(--border);
+  font-size:.68rem;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;flex-shrink:0;
+}
+kbd{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:3px;padding:1px 5px;font-size:.65rem;color:var(--text2);
+}
+
+/* Loading */
+#loading{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+}
+#loading.show{display:flex}
+.spin{
+  width:36px;height:36px;border:3px solid #2a2a2a;
+  border-top-color:var(--red);border-radius:50%;animation:sp .65s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+#load-msg{font-size:.88rem;color:#ccc}
+
+/* Responsive */
+@media(max-width:900px){#left{width:260px} #right{width:280px}}
+@media(max-width:650px){
+  #main{flex-direction:column}
+  #left{width:100%;height:200px;border-right:none;border-bottom:1px solid var(--border)}
+  #right{width:100%;min-height:180px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spin"></div><span id="load-msg">載入字幕中…</span></div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <a class="logo" href="#">
+      <span class="logo-badge">TED</span>
+      <div>
+        <div class="logo-text">Learn</div>
+        <div class="logo-sub">英文學習模式</div>
+      </div>
+    </a>
+  </div>
+  <div id="cat-bar">
+    <button class="cat-btn active" data-cat="all">全部</button>
+    <button class="cat-btn" data-cat="education">🎓 教育</button>
+    <button class="cat-btn" data-cat="psychology">🧠 心理</button>
+    <button class="cat-btn" data-cat="technology">💻 科技</button>
+    <button class="cat-btn" data-cat="science">🔬 科學</button>
+    <button class="cat-btn" data-cat="health">❤️ 健康</button>
+    <button class="cat-btn" data-cat="creativity">🎨 創意</button>
+    <button class="cat-btn" data-cat="leadership">🚀 領導</button>
+    <button class="cat-btn" data-cat="society">🌍 社會</button>
+    <button class="cat-btn" data-cat="happiness">😊 幸福</button>
+  </div>
+  <div class="header-right">
+    <button class="ibtn on" id="zh-btn">🇹🇼 中文</button>
+    <button class="ibtn" id="theme-btn">🌙</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- LEFT: TALK LIST -->
+  <div id="left">
+    <div id="search-wrap">
+      <input id="talk-search" type="text" placeholder="🔍 搜尋演講、講者…">
+    </div>
+    <div id="talk-list">
+      <div class="empty-state"><div class="spin" style="width:24px;height:24px"></div></div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: PLAYER -->
+  <div id="middle">
+    <div id="player-wrap">
+      <div id="placeholder-mid">
+        <div class="ph-big">🎤</div>
+        <div>請從左側選擇一場 TED 演講</div>
+        <div class="ph-hint">支援即時字幕 · 單字查詢 · 中文翻譯</div>
+      </div>
+      <iframe id="ted-embed" allowfullscreen
+        allow="autoplay; fullscreen; encrypted-media"></iframe>
+      <div id="yt-player-div"></div>
+    </div>
+    <!-- Info bar -->
+    <div id="info-bar">
+      <img id="ib-thumb" src="" alt="">
+      <div id="ib-meta">
+        <div id="ib-title">—</div>
+        <div id="ib-speaker">—</div>
+      </div>
+      <span id="ib-views"></span>
+      <span class="ted-badge">TED</span>
+    </div>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <!-- Controls -->
+    <div id="controls">
+      <button class="cbtn" id="pp-btn">▶ 播放</button>
+      <select class="csel" id="speed-sel">
+        <option value=".5">0.5×</option>
+        <option value=".75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+      <button class="cbtn" id="rep-btn">↩ 重播</button>
+      <button class="cbtn" id="ap-btn">⏸ 自動暫停</button>
+      <span class="clabel">字幕大小</span>
+      <input type="range" id="fs-range" min="12" max="26" value="15">
+    </div>
+  </div>
+
+  <!-- RIGHT: CAPTIONS -->
+  <div id="right">
+    <div id="cap-header">
+      <div class="ch-l">
+        <span class="ch-title">📝 即時字幕</span>
+        <span id="cap-status">等待選擇</span>
+      </div>
+      <div class="ch-r">
+        <button class="sm-btn on" id="zh-cap-btn">中文</button>
+        <button class="sm-btn" id="fullscr-btn">⛶</button>
+      </div>
+    </div>
+    <div id="cap-list">
+      <div class="empty-state">
+        <span style="font-size:2.5rem">🎤</span>
+        <span>選擇演講後字幕出現於此</span>
+      </div>
+    </div>
+    <div id="kbds">
+      <span><kbd>Space</kbd>播放</span>
+      <span><kbd>←→</kbd>±5s</span>
+      <span><kbd>R</kbd>重播</span>
+      <span><kbd>A</kbd>自動暫停</span>
+      <span><kbd>Z</kbd>中文</span>
+      <span><kbd>+−</kbd>大小</span>
+      <span><kbd>T</kbd>主題</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  TALK DATABASE  (精選 50+ TED Talks)
+// ═══════════════════════════════════════════════════
+const TALKS = [
+  // Education
+  {slug:"ken_robinson_says_schools_kill_creativity",title:"Do schools kill creativity?",speaker:"Sir Ken Robinson",year:2006,duration:"19:12",cat:"education",level:"B1",views:"72M",thumb:"https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/9e25aff6-b53c-475e-a1f8-74b0c20d9095/KenRobinson_2006-embed.jpg"},
+  {slug:"rita_pierson_every_kid_needs_a_champion",title:"Every kid needs a champion",speaker:"Rita Pierson",year:2013,duration:"7:48",cat:"education",level:"B1",views:"17M"},
+  {slug:"sal_khan_let_s_use_video_to_reinvent_education",title:"Let's use video to reinvent education",speaker:"Sal Khan",year:2011,duration:"20:27",cat:"education",level:"B2",views:"7M"},
+  {slug:"angela_lee_duckworth_grit_the_power_of_passion_and_perseverance",title:"Grit: The power of passion and perseverance",speaker:"Angela Duckworth",year:2013,duration:"6:12",cat:"education",level:"B1",views:"23M"},
+  // Psychology
+  {slug:"brene_brown_the_power_of_vulnerability",title:"The power of vulnerability",speaker:"Brené Brown",year:2010,duration:"20:19",cat:"psychology",level:"B2",views:"61M"},
+  {slug:"brene_brown_listening_to_shame",title:"Listening to shame",speaker:"Brené Brown",year:2012,duration:"20:38",cat:"psychology",level:"B2",views:"11M"},
+  {slug:"dan_gilbert_asks_why_are_we_happy",title:"The surprising science of happiness",speaker:"Dan Gilbert",year:2004,duration:"21:16",cat:"happiness",level:"B2",views:"21M"},
+  {slug:"mihaly_csikszentmihalyi_on_flow",title:"Flow, the secret to happiness",speaker:"Mihaly Csikszentmihalyi",year:2004,duration:"18:55",cat:"happiness",level:"C1",views:"8M"},
+  {slug:"carol_dweck_the_power_of_believing_that_you_can_improve",title:"The power of believing that you can improve",speaker:"Carol Dweck",year:2014,duration:"10:11",cat:"psychology",level:"B1",views:"15M"},
+  {slug:"simon_sinek_how_great_leaders_inspire_action",title:"How great leaders inspire action",speaker:"Simon Sinek",year:2009,duration:"18:04",cat:"leadership",level:"B2",views:"73M"},
+  // Technology
+  {slug:"sir_tim_berners_lee_the_next_web",title:"The next web",speaker:"Tim Berners-Lee",year:2009,duration:"16:18",cat:"technology",level:"B2",views:"3M"},
+  {slug:"yann_lecun_deep_learning_neural_networks_and_the_future_of_ai",title:"Deep learning & AI",speaker:"Yann LeCun",year:2019,duration:"14:40",cat:"technology",level:"C1",views:"2M"},
+  {slug:"sam_gregory_ai_generated_fake_videos_are_a_threat_to_democracy",title:"AI fake videos: threat to democracy",speaker:"Sam Gregory",year:2019,duration:"9:11",cat:"technology",level:"B2",views:"1M"},
+  {slug:"nicholas_negroponte_5_predictions_from_1984",title:"5 predictions from 1984",speaker:"Nicholas Negroponte",year:1984,duration:"7:39",cat:"technology",level:"B2",views:"2M"},
+  // Science
+  {slug:"robert_full_learning_from_the_gecko_s_tail",title:"Learning from the gecko's tail",speaker:"Robert Full",year:2009,duration:"15:58",cat:"science",level:"B2",views:"1M"},
+  {slug:"jane_goodall_what_separates_us_from_chimpanzees",title:"What separates us from chimpanzees?",speaker:"Jane Goodall",year:2002,duration:"26:52",cat:"science",level:"B2",views:"3M"},
+  {slug:"bill_nye_creationism_is_not_appropriate_for_children",title:"Creationism vs. Science",speaker:"Bill Nye",year:2012,duration:"2:32",cat:"science",level:"B1",views:"6M"},
+  {slug:"david_eagleman_can_we_create_new_senses_for_humans",title:"Can we create new senses for humans?",speaker:"David Eagleman",year:2015,duration:"21:54",cat:"science",level:"B2",views:"3M"},
+  // Health
+  {slug:"michael_pollan_a_plant_s_eye_view",title:"A plant's eye view",speaker:"Michael Pollan",year:2007,duration:"17:35",cat:"health",level:"B2",views:"3M"},
+  {slug:"matthew_walker_sleep_is_your_superpower",title:"Sleep is your superpower",speaker:"Matthew Walker",year:2019,duration:"19:18",cat:"health",level:"B2",views:"14M"},
+  {slug:"amy_cuddy_your_body_language_may_shape_who_you_are",title:"Your body language may shape who you are",speaker:"Amy Cuddy",year:2012,duration:"21:02",cat:"psychology",level:"B1",views:"67M"},
+  {slug:"robert_waldinger_what_makes_a_good_life_lessons_from_the_longest_study_on_happiness",title:"What makes a good life?",speaker:"Robert Waldinger",year:2015,duration:"12:38",cat:"happiness",level:"B1",views:"45M"},
+  // Creativity
+  {slug:"elizabeth_gilbert_your_elusive_creative_genius",title:"Your elusive creative genius",speaker:"Elizabeth Gilbert",year:2009,duration:"19:31",cat:"creativity",level:"B2",views:"14M"},
+  {slug:"tim_brown_tales_of_creativity_and_play",title:"Tales of creativity and play",speaker:"Tim Brown",year:2008,duration:"27:24",cat:"creativity",level:"B2",views:"2M"},
+  {slug:"john_cleese_on_the_origin_of_creativity",title:"On the origin of creativity",speaker:"John Cleese",year:2019,duration:"6:45",cat:"creativity",level:"B2",views:"2M"},
+  {slug:"ursus_wehrli_tidying_up_art",title:"Tidying up art",speaker:"Ursus Wehrli",year:2006,duration:"6:18",cat:"creativity",level:"A2",views:"5M"},
+  // Leadership
+  {slug:"sheryl_sandberg_why_we_have_too_few_women_leaders",title:"Why we have too few women leaders",speaker:"Sheryl Sandberg",year:2010,duration:"14:58",cat:"leadership",level:"B2",views:"9M"},
+  {slug:"bill_gates_how_state_budgets_are_breaking_us_schools",title:"How state budgets are breaking schools",speaker:"Bill Gates",year:2011,duration:"10:29",cat:"leadership",level:"B2",views:"2M"},
+  {slug:"tony_robbins_why_we_do_what_we_do",title:"Why we do what we do",speaker:"Tony Robbins",year:2006,duration:"21:45",cat:"leadership",level:"B1",views:"22M"},
+  {slug:"jacinda_ardern_how_to_lead_with_empathy",title:"How to lead with empathy",speaker:"Jacinda Ardern",year:2022,duration:"12:00",cat:"leadership",level:"B2",views:"3M"},
+  // Society
+  {slug:"hans_rosling_the_best_stats_you_ve_ever_seen",title:"The best stats you've ever seen",speaker:"Hans Rosling",year:2006,duration:"19:51",cat:"society",level:"B2",views:"15M"},
+  {slug:"chimamanda_ngozi_adichie_the_danger_of_a_single_story",title:"The danger of a single story",speaker:"Chimamanda Ngozi Adichie",year:2009,duration:"18:49",cat:"society",level:"B2",views:"30M"},
+  {slug:"malcolm_gladwell_choice_happiness_and_spaghetti_sauce",title:"Choice, happiness and spaghetti sauce",speaker:"Malcolm Gladwell",year:2004,duration:"17:26",cat:"society",level:"B2",views:"9M"},
+  {slug:"barry_schwartz_the_paradox_of_choice",title:"The paradox of choice",speaker:"Barry Schwartz",year:2005,duration:"19:27",cat:"society",level:"B2",views:"16M"},
+  {slug:"al_gore_averting_the_climate_crisis",title:"Averting the climate crisis",speaker:"Al Gore",year:2006,duration:"16:17",cat:"society",level:"B2",views:"3M"},
+  // Happiness
+  {slug:"shawn_achor_the_happy_secret_to_better_work",title:"The happy secret to better work",speaker:"Shawn Achor",year:2011,duration:"12:13",cat:"happiness",level:"B1",views:"25M"},
+  {slug:"happiness_is_all_in_your_mind_gen_kelsang_nyema",title:"Happiness is all in your mind",speaker:"Gen Kelsang Nyema",year:2014,duration:"10:34",cat:"happiness",level:"B1",views:"3M"},
+  {slug:"nic_marks_the_happy_planet_index",title:"The Happy Planet Index",speaker:"Nic Marks",year:2010,duration:"17:02",cat:"happiness",level:"B2",views:"1M"},
+];
+
+// ═══════════════════════════════════════════════════
+//  DICTIONARY
+// ═══════════════════════════════════════════════════
+const DICT = {
+  "the":{ph:"/ðə/",pos:"art.",def:"定冠詞，特指某事物",ex:"The sun rises in the east."},
+  "be":{ph:"/biː/",pos:"v.",def:"是；存在",ex:"I want to be a better person."},
+  "to":{ph:"/tuː/",pos:"prep.",def:"到；為了",ex:"I need to study hard."},
+  "of":{ph:"/ɒv/",pos:"prep.",def:"…的",ex:"A cup of coffee."},
+  "and":{ph:"/ænd/",pos:"conj.",def:"和；與",ex:"Come and join us."},
+  "in":{ph:"/ɪn/",pos:"prep.",def:"在…之內",ex:"I live in Taipei."},
+  "that":{ph:"/ðæt/",pos:"conj.",def:"那；以致於",ex:"I know that it's true."},
+  "have":{ph:"/hæv/",pos:"v.",def:"有；擁有",ex:"I have a dream."},
+  "it":{ph:"/ɪt/",pos:"pron.",def:"它；這件事",ex:"It is amazing."},
+  "for":{ph:"/fɔːr/",pos:"prep.",def:"為了；給",ex:"This is for you."},
+  "not":{ph:"/nɒt/",pos:"adv.",def:"不；沒有",ex:"I do not agree."},
+  "with":{ph:"/wɪð/",pos:"prep.",def:"和；用；帶著",ex:"She came with a smile."},
+  "you":{ph:"/juː/",pos:"pron.",def:"你；你們",ex:"You are amazing."},
+  "this":{ph:"/ðɪs/",pos:"pron.",def:"這個；這件事",ex:"This is important."},
+  "we":{ph:"/wiː/",pos:"pron.",def:"我們",ex:"We can change the world."},
+  "are":{ph:"/ɑːr/",pos:"v.",def:"是（複數）",ex:"They are ready."},
+  "do":{ph:"/duː/",pos:"v.",def:"做；執行",ex:"Do your best."},
+  "think":{ph:"/θɪŋk/",pos:"v.",def:"思考；認為",ex:"Think before you speak."},
+  "know":{ph:"/noʊ/",pos:"v.",def:"知道；了解",ex:"I know the answer."},
+  "about":{ph:"/əˈbaʊt/",pos:"prep.",def:"關於；大約",ex:"Tell me about yourself."},
+  "creativity":{ph:"/ˌkriːeɪˈtɪvɪti/",pos:"n.",def:"創造力；創意",ex:"Creativity drives innovation."},
+  "education":{ph:"/ˌedʒuˈkeɪʃn/",pos:"n.",def:"教育；受教育",ex:"Education opens doors."},
+  "intelligence":{ph:"/ɪnˈtelɪdʒəns/",pos:"n.",def:"智力；智慧",ex:"Emotional intelligence matters."},
+  "human":{ph:"/ˈhjuːmən/",pos:"adj./n.",def:"人類的；人類",ex:"Human kindness is powerful."},
+  "world":{ph:"/wɜːrld/",pos:"n.",def:"世界；宇宙",ex:"The world is changing fast."},
+  "people":{ph:"/ˈpiːpl/",pos:"n.",def:"人們；人民",ex:"People need connection."},
+  "life":{ph:"/laɪf/",pos:"n.",def:"生命；生活",ex:"Life is full of surprises."},
+  "time":{ph:"/taɪm/",pos:"n.",def:"時間；次數",ex:"Time flies."},
+  "good":{ph:"/ɡʊd/",pos:"adj.",def:"好的；善良的",ex:"You did a good job."},
+  "great":{ph:"/ɡreɪt/",pos:"adj.",def:"偉大的；出色的",ex:"She is a great leader."},
+  "school":{ph:"/skuːl/",pos:"n.",def:"學校；學習",ex:"School shapes our future."},
+  "children":{ph:"/ˈtʃɪldrən/",pos:"n.",def:"孩子們",ex:"Children learn quickly."},
+  "love":{ph:"/lʌv/",pos:"n./v.",def:"愛；喜歡",ex:"Love conquers all."},
+  "power":{ph:"/ˈpaʊər/",pos:"n.",def:"力量；權力",ex:"Knowledge is power."},
+  "change":{ph:"/tʃeɪndʒ/",pos:"v./n.",def:"改變；變化",ex:"Change starts with you."},
+  "believe":{ph:"/bɪˈliːv/",pos:"v.",def:"相信；信任",ex:"Believe in yourself."},
+  "failure":{ph:"/ˈfeɪljər/",pos:"n.",def:"失敗；不及格",ex:"Failure is a stepping stone."},
+  "success":{ph:"/səkˈses/",pos:"n.",def:"成功；成就",ex:"Success takes patience."},
+  "fear":{ph:"/fɪər/",pos:"n./v.",def:"恐懼；害怕",ex:"Fear can hold you back."},
+  "happiness":{ph:"/ˈhæpɪnəs/",pos:"n.",def:"幸福；快樂",ex:"Happiness is a choice."},
+  "vulnerability":{ph:"/ˌvʌlnərəˈbɪlɪti/",pos:"n.",def:"脆弱；易受傷性",ex:"Vulnerability takes courage."},
+  "courage":{ph:"/ˈkɜːrɪdʒ/",pos:"n.",def:"勇氣；膽量",ex:"It takes courage to be honest."},
+  "connection":{ph:"/kəˈnekʃn/",pos:"n.",def:"連結；關係",ex:"Human connection is vital."},
+  "shame":{ph:"/ʃeɪm/",pos:"n.",def:"羞恥；羞愧",ex:"Shame is a silent killer."},
+  "story":{ph:"/ˈstɔːri/",pos:"n.",def:"故事；歷史",ex:"Every person has a story."},
+  "sleep":{ph:"/sliːp/",pos:"v./n.",def:"睡眠；睡覺",ex:"Sleep heals your brain."},
+  "brain":{ph:"/breɪn/",pos:"n.",def:"大腦；腦力",ex:"The brain is remarkable."},
+  "data":{ph:"/ˈdeɪtə/",pos:"n.",def:"數據；資料",ex:"Data tells the truth."},
+  "leader":{ph:"/ˈliːdər/",pos:"n.",def:"領導者；領袖",ex:"A good leader listens."},
+  "inspire":{ph:"/ɪnˈspaɪər/",pos:"v.",def:"激勵；啟發",ex:"Great teachers inspire students."},
+  "possible":{ph:"/ˈpɒsɪbl/",pos:"adj.",def:"可能的",ex:"Anything is possible."},
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let currentTalk  = null;
+let captions     = [];
+let currentIdx   = -1;
+let autoPause    = false;
+let autoPausedAt = -1;
+let showZh       = true;
+let fontSize     = 15;
+let isDark       = true;
+let rafId        = null;
+let ytPlayer     = null;
+let currentCat   = 'all';
+let searchQuery  = '';
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+function $(id){ return document.getElementById(id); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderTalkList();
+  setupEventListeners();
+});
+
+// ═══════════════════════════════════════════════════
+//  TALK LIST
+// ═══════════════════════════════════════════════════
+const LEVEL_COLOR = {A2:'#10b981',B1:'#3b82f6',B2:'#f59e0b',C1:'#ef4444'};
+
+function renderTalkList() {
+  const list = $('talk-list');
+  const q = searchQuery.toLowerCase();
+  const filtered = TALKS.filter(t => {
+    const matchCat = currentCat === 'all' || t.cat === currentCat;
+    const matchQ   = !q || t.title.toLowerCase().includes(q) || t.speaker.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><span>😢 找不到相關演講</span></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    const isActive = currentTalk && currentTalk.slug === t.slug;
+    const thumb = t.thumb || `{{https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/${t.slug}/embed.jpg}}?w=140`;
+    const lvlCol = LEVEL_COLOR[t.level] || '#888';
+    return `<div class="talk-card${isActive?' active':''}" data-slug="${t.slug}">
+      <img class="talk-thumb" src="${thumb}" alt="" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2246%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23222%22/><text x=%2250%25%22 y=%2255%25%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2218%22>🎤</text></svg>'">
+      <div class="talk-info">
+        <div class="talk-title">${t.title}</div>
+        <div class="talk-meta">
+          <span class="talk-speaker">${t.speaker}</span>
+          <span class="talk-tag" style="color:${lvlCol};border-color:${lvlCol}20;background:${lvlCol}15">${t.level}</span>
+          <span class="talk-dur">${t.duration}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.talk-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const talk = TALKS.find(t => t.slug === card.dataset.slug);
+      if (talk) selectTalk(talk);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  SELECT TALK
+// ═══════════════════════════════════════════════════
+async function selectTalk(talk) {
+  currentTalk  = talk;
+  captions     = [];
+  currentIdx   = -1;
+  autoPausedAt = -1;
+  stopRaf();
+
+  renderTalkList(); // update active state
+
+  // Info bar
+  $('ib-title').textContent   = talk.title;
+  $('ib-speaker').textContent = `${talk.speaker} · ${talk.year}`;
+  $('ib-views').textContent   = talk.views ? `👁 ${talk.views}` : '';
+  const thumb = talk.thumb || '';
+  $('ib-thumb').src = thumb;
+  $('info-bar').classList.add('show');
+
+  // Load player
+  loadTEDEmbed(talk.slug);
+
+  // Fetch captions
+  showLoad('抓取字幕中…');
+  $('cap-status').textContent = '載入字幕…';
+  captions = [];
+  renderCaptions();
+
+  await fetchTEDCaptions(talk.slug);
+
+  hideLoad();
+  renderCaptions();
+  startRaf();
+}
+
+// ═══════════════════════════════════════════════════
+//  TED EMBED + YOUTUBE FALLBACK
+// ═══════════════════════════════════════════════════
+function loadTEDEmbed(slug) {
+  $('placeholder-mid').style.display = 'none';
+  $('yt-player-div').style.display   = 'none';
+  const ted = $('ted-embed');
+  ted.style.display = 'block';
+  ted.src = `https://embed.ted.com/talks/${slug}?autoplay=1&controls=1`;
+}
+
+// If we have a YouTube ID, use YT player (better sync)
+function switchToYT(ytId) {
+  $('ted-embed').style.display     = 'none';
+  $('yt-player-div').style.display = 'block';
+
+  if (ytPlayer) { ytPlayer.loadVideoById(ytId); return; }
+
+  const doInit = () => {
+    ytPlayer = new YT.Player('yt-player-div', {
+      videoId: ytId,
+      playerVars:{rel:0,modestbranding:1,iv_load_policy:3,controls:1},
+      events:{
+        onReady: () => { startRaf(); updateProgress(); },
+        onStateChange: (e) => {
+          $('pp-btn').textContent =
+            e.data === YT.PlayerState.PLAYING ? '⏸ 暫停' : '▶ 播放';
+          if (e.data === YT.PlayerState.PLAYING) startRaf();
+          if (e.data === YT.PlayerState.ENDED)   stopRaf();
+        }
+      }
+    });
+  };
+  if (window.YT && YT.Player) doInit();
+  else { const t = setInterval(()=>{ if(window.YT&&YT.Player){clearInterval(t);doInit();} },200); }
+}
+
+// ═══════════════════════════════════════════════════
+//  FETCH TED CAPTIONS
+// ═══════════════════════════════════════════════════
+const PROXY = 'https://corsproxy.io/?';
+
+async function fetchTEDCaptions(slug) {
+  const enUrl = `https://www.ted.com/talks/${slug}/transcript.json`;
+  const zhUrl = `https://www.ted.com/talks/${slug}/transcript.json?language=zh-tw`;
+
+  let enData = null, zhData = null;
+
+  // Try en transcript
+  for (const p of ['', PROXY]) {
+    try {
+      const r = await fetch(p + (p ? encodeURIComponent(enUrl) : enUrl),
+        {signal: AbortSignal.timeout(10000)});
+      if (r.ok) { enData = await r.json(); break; }
+    } catch {}
+  }
+
+  // Try zh-tw transcript
+  for (const p of ['', PROXY]) {
+    try {
+      const r = await fetch(p + (p ? encodeURIComponent(zhUrl) : zhUrl),
+        {signal: AbortSignal.timeout(8000)});
+      if (r.ok) { zhData = await r.json(); break; }
+    } catch {}
+  }
+
+  // Also try to get YouTube ID from TED HTML for better sync
+  try {
+    const htmlUrl = `https://www.ted.com/talks/${slug}`;
+    for (const p of ['', PROXY]) {
+      const r = await fetch(p + (p ? encodeURIComponent(htmlUrl) : htmlUrl),
+        {signal: AbortSignal.timeout(8000)});
+      if (r.ok) {
+        const html = await r.text();
+        const m = html.match(/"youtubeId"\s*:\s*"(+)"/);
+        if (m) { switchToYT(m[1]); break; }
+      }
+    }
+  } catch {}
+
+  // Build captions
+  if (enData && enData.paragraphs) {
+    captions = parseTEDTranscript(enData);
+    $('cap-status').textContent = `✅ ${captions.length} 段`;
+  } else {
+    captions = buildDemoCaptions(slug);
+    $('cap-status').textContent = '⚠️ 範例字幕';
+  }
+
+  // Merge zh
+  if (zhData && zhData.paragraphs) {
+    mergeZH(zhData);
+    $('cap-status').textContent += ' 🇹🇼';
+  }
+}
+
+function parseTEDTranscript(data) {
+  const out = [];
+  data.paragraphs.forEach(para => {
+    para.cues.forEach(cue => {
+      const text = (cue.text||'').trim();
+      if (!text) return;
+      const start = (cue.time||0)/1000;
+      const dur   = (cue.duration||3000)/1000;
+      out.push({start, end: start+dur, text});
+    });
+  });
+  return out;
+}
+
+function mergeZH(data) {
+  let i = 0;
+  data.paragraphs.forEach(para => {
+    para.cues.forEach(cue => {
+      if (captions[i]) captions[i].zh = (cue.text||'').trim();
+      i++;
+    });
+  });
+}
+
+function buildDemoCaptions(slug) {
+  // Talk-specific demo captions
+  const demos = {
+    "ken_robinson_says_schools_kill_creativity": [
+      {s:0,  e:4,  en:"Good morning.", zh:"早安。"},
+      {s:4,  e:9,  en:"How are you? It's been great, hasn't it?", zh:"你好嗎？很棒，不是嗎？"},
+      {s:9,  e:15, en:"I've been blown away by the whole thing.", zh:"整件事讓我大為震驚。"},
+      {s:15, e:22, en:"There have been three themes running through the conference.", zh:"貫穿整個會議有三個主題。"},
+      {s:22, e:29, en:"One is the extraordinary evidence of human creativity.", zh:"其一是人類創造力的驚人佐證。"},
+      {s:29, e:36, en:"Two has been something about children, and their capacities.", zh:"其二是關於孩子的能力。"},
+      {s:36, e:43, en:"I'm going to talk about education today.", zh:"今天我要談談教育。"},
+      {s:43, e:50, en:"I have an interest in education. Actually, I think we all do.", zh:"我對教育很感興趣。實際上，我認為我們都有。"},
+      {s:50, e:58, en:"Creativity now is as important in education as literacy.", zh:"現在，創造力在教育中與識字能力同等重要。"},
+      {s:58, e:65, en:"And we should treat it with the same status.", zh:"我們應該給予它同等的地位。"},
+      {s:65, e:73, en:"Kids will take a chance. If they don't know, they'll have a go.", zh:"孩子們會去嘗試。如果他們不知道，他們會試一試。"},
+      {s:73, e:80, en:"They're not frightened of being wrong.", zh:"他們不害怕犯錯。"},
+      {s:80, e:88, en:"And by the time they get to be adults, most kids have lost that capacity.", zh:"等到他們成年，大多數孩子已經失去了這種能力。"},
+      {s:88, e:96, en:"They have become frightened of being wrong.", zh:"他們開始害怕犯錯。"},
+      {s:96, e:104,en:"And we run our companies like this.", zh:"而我們就是這樣管理我們的公司的。"},
+      {s:104,e:112,en:"We stigmatize mistakes.", zh:"我們將錯誤汙名化。"},
+    ],
+    "brene_brown_the_power_of_vulnerability": [
+      {s:0,  e:6,  en:"So, I'll start with this: a couple years ago, an event planner called me.", zh:"我從這裡開始：幾年前，一位活動策劃人打電話給我。"},
+      {s:6,  e:13, en:"She said, 'I'm doing a speaking event and I'd like you to come and speak.'", zh:"她說，'我在辦一場演講活動，我希望你來發言。'"},
+      {s:13, e:21, en:"And I said, 'That's great. What do you want me to talk about?'", zh:"我說，'很好。你想讓我講什麼？'"},
+      {s:21, e:30, en:"And she said, 'Shame and vulnerability.'", zh:"她說，'羞恥與脆弱。'"},
+      {s:30, e:38, en:"I said, 'You're kidding me. This is what you want me to talk about?'", zh:"我說，'你在開玩笑嗎？這是你想讓我講的？'"},
+      {s:38, e:46, en:"Connection is why we're here.", zh:"連結是我們存在的原因。"},
+      {s:46, e:54, en:"It is what gives purpose and meaning to our lives.", zh:"它賦予我們生命目的和意義。"},
+      {s:54, e:62, en:"The ability to feel connected is — neurobiologically that's how we're wired.", zh:"感受連結的能力——神經生物學上這就是我們的連線方式。"},
+      {s:62, e:70, en:"In order for connection to happen, we have to allow ourselves to be seen.", zh:"為了讓連結發生，我們必須允許自己被看見。"},
+      {s:70, e:78, en:"Vulnerability is not weakness.", zh:"脆弱不是軟弱。"},
+      {s:78, e:86, en:"And that myth is profoundly dangerous.", zh:"這個神話是非常危險的。"},
+      {s:86, e:94, en:"Vulnerability is the birthplace of innovation, creativity and change.", zh:"脆弱是創新、創意和變革的發源地。"},
+    ],
+  };
+
+  const d = demos[slug];
+  if (d) return d.map(c => ({start:c.s, end:c.e, text:c.en, zh:c.zh}));
+
+  // Generic fallback
+  return [
+    {start:0,  end:5,  text:"Welcome to this TED Talk.", zh:"歡迎收看這場 TED 演講。"},
+    {start:5,  end:10, text:"Today I want to share something important with you.", zh:"今天我想與你分享一件重要的事。"},
+    {start:10, end:15, text:"The ideas we explore here could change how you see the world.", zh:"我們在這裡探討的想法可能改變你看世界的方式。"},
+    {start:15, end:20, text:"Let's begin with a simple question.", zh:"讓我們從一個簡單的問題開始。"},
+    {start:20, end:26, text:"What does it mean to be truly human?", zh:"真正成為人類意味著什麼？"},
+    {start:26, end:32, text:"I believe that creativity is at the heart of our humanity.", zh:"我相信創造力是我們人性的核心。"},
+    {start:32, end:38, text:"When we suppress creativity, we suppress ourselves.", zh:"當我們壓制創造力時，我們在壓制自己。"},
+    {start:38, end:45, text:"Education should be about expanding possibilities.", zh:"教育應該是關於擴展可能性。"},
+    {start:45, end:52, text:"Not narrowing them down to a single path.", zh:"而不是將它們縮小到單一路徑。"},
+    {start:52, end:58, text:"Thank you very much.", zh:"非常感謝你。"},
+  ];
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER CAPTIONS
+// ═══════════════════════════════════════════════════
+function renderCaptions() {
+  const list = $('cap-list');
+  if (!captions.length) {
+    list.innerHTML = '<div class="empty-state"><span style="font-size:2rem">📭</span><span>字幕載入中…</span></div>';
+    return;
+  }
+  list.innerHTML = captions.map((c,i) => {
+    const zhBlock = c.zh !== undefined
+      ? `<div class="ci-zh${showZh?' show':''}">${esc(c.zh)}</div>`
+      : `<div class="ci-zh${showZh?' show':''}">—</div>`;
+    return `<div class="ci" id="ci-${i}" data-i="${i}">
+      <div class="ci-time">${fmt(c.start)}</div>
+      <div class="ci-en">${buildWords(c.text)}</div>
+      ${zhBlock}
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.ci').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.classList.contains('w') || e.target.closest('.dt')) return;
+      const idx = parseInt(el.dataset.i);
+      seekTo(captions[idx].start);
+      playMedia();
+    });
+  });
+
+  updateFontSize();
+}
+
+function buildWords(text) {
+  return text.split(/(\s+)/).map(p => {
+    if (/^\s+$/.test(p)) return p;
+    const cl = p.replace(//g,'').toLowerCase();
+    const d  = DICT[cl];
+    const tip = d
+      ? `<span class="dt"><span class="dt-w">${cl}</span><span class="dt-ph"> ${d.ph}</span><div class="dt-pos">${d.pos}</div><div class="dt-def">${d.def}</div><div class="dt-ex">"${d.ex}"</div></span>`
+      : `<span class="dt"><span class="dt-w">${cl||p}</span><div class="dt-def" style="color:var(--text3);font-size:.72rem">（點擊查詢字典）</div></span>`;
+    return `<span class="w" data-w="${cl}">${esc(p)}${tip}</span>`;
+  }).join('');
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(s){ const m=Math.floor(s/60),sec=Math.floor(s%60); return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+
+// ═══════════════════════════════════════════════════
+//  SYNC LOOP
+// ═══════════════════════════════════════════════════
+function startRaf(){ if(rafId) return; const lp=()=>{ syncCap(); updateProgress(); rafId=requestAnimationFrame(lp); }; lp(); }
+function stopRaf(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
+
+function getCurrentTime(){
+  if(ytPlayer) try{ return ytPlayer.getCurrentTime(); }catch{}
+  return 0;
+}
+function getDuration(){
+  if(ytPlayer) try{ return ytPlayer.getDuration()||1; }catch{}
+  return 1;
+}
+
+function syncCap(){
+  const t   = getCurrentTime();
+  const idx = findIdx(t);
+
+  if (autoPause && currentIdx >= 0 && idx !== currentIdx) {
+    const prev = captions[currentIdx];
+    if (t >= prev.end - 0.05 && autoPausedAt !== currentIdx) {
+      autoPausedAt = currentIdx;
+      pauseMedia();
+    }
+  }
+  if (idx === currentIdx) return;
+  currentIdx = idx;
+
+  document.querySelectorAll('.ci.active').forEach(el => {
+    el.classList.remove('active');
+    el.querySelectorAll('.w.aw').forEach(w=>w.classList.remove('aw'));
+  });
+  if (idx < 0) return;
+  const item = $(`ci-${idx}`);
+  if (!item) return;
+  item.classList.add('active');
+  item.scrollIntoView({behavior:'smooth',block:'center'});
+  item.querySelectorAll('.w').forEach((w,i)=>{
+    setTimeout(()=>{
+      item.querySelectorAll('.w.aw').forEach(x=>x.classList.remove('aw'));
+      w.classList.add('aw');
+    }, i*110);
+  });
+}
+
+function findIdx(t){
+  for(let i=0;i<captions.length;i++) if(t>=captions[i].start&&t<captions[i].end) return i;
+  return -1;
+}
+
+function updateProgress(){
+  const pct = getDuration() > 0 ? (getCurrentTime()/getDuration()*100) : 0;
+  $('progress-bar').style.width = Math.min(100,pct) + '%';
+}
+
+// Progress bar click
+$('progress-wrap').addEventListener('click', e => {
+  const rect  = $('progress-wrap').getBoundingClientRect();
+  const pct   = (e.clientX - rect.left) / rect.width;
+  const newT  = pct * getDuration();
+  seekTo(newT);
+});
+
+// ═══════════════════════════════════════════════════
+//  MEDIA CONTROLS
+// ═══════════════════════════════════════════════════
+function playMedia(){ if(ytPlayer) try{ytPlayer.playVideo();}catch{} }
+function pauseMedia(){ if(ytPlayer) try{ytPlayer.pauseVideo();}catch{} }
+function seekTo(t){ if(ytPlayer) try{ytPlayer.seekTo(t,true);}catch{} }
+function isPlaying(){ if(ytPlayer) try{return ytPlayer.getPlayerState()===YT.PlayerState.PLAYING;}catch{} return false; }
+
+$('pp-btn').addEventListener('click',()=>{ if(isPlaying()) pauseMedia(); else playMedia(); });
+$('speed-sel').addEventListener('change',e=>{ if(ytPlayer) try{ytPlayer.setPlaybackRate(parseFloat(e.target.value));}catch{} });
+$('rep-btn').addEventListener('click', replay);
+
+function replay(){
+  if(currentIdx<0) return;
+  autoPausedAt=-1;
+  seekTo(captions[currentIdx].start);
+  playMedia();
+}
+
+$('ap-btn').addEventListener('click',()=>{
+  autoPause=!autoPause; autoPausedAt=-1;
+  $('ap-btn').classList.toggle('on',autoPause);
+  $('ap-btn').textContent=autoPause?'▶ 自動暫停 ON':'⏸ 自動暫停';
+});
+
+$('fs-range').addEventListener('input',e=>{
+  fontSize=parseInt(e.target.value); updateFontSize();
+});
+function updateFontSize(){
+  document.documentElement.style.setProperty('--cfz',fontSize+'px');
+}
+
+// ═══════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═══════════════════════════════════════════════════
+function setupEventListeners(){
+  // Category tabs
+  document.querySelectorAll('.cat-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat = btn.dataset.cat;
+      renderTalkList();
+    });
+  });
+
+  // Search
+  $('talk-search').addEventListener('input',e=>{
+    searchQuery = e.target.value;
+    renderTalkList();
+  });
+
+  // zh toggle
+  $('zh-btn').addEventListener('click',()=>{
+    showZh=!showZh;
+    $('zh-btn').classList.toggle('on',showZh);
+    $('zh-btn').textContent = showZh?'🇹🇼 中文':'🇺🇸 英文';
+    $('zh-cap-btn').classList.toggle('on',showZh);
+    document.querySelectorAll('.ci-zh').forEach(el=>el.classList.toggle('show',showZh));
+  });
+  $('zh-cap-btn').addEventListener('click',()=>{ $('zh-btn').click(); });
+
+  // Theme
+  $('theme-btn').addEventListener('click',()=>{
+    isDark=!isDark;
+    document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
+    $('theme-btn').textContent=isDark?'🌙':'☀️';
+  });
+
+  // Fullscreen captions
+  $('fullscr-btn').addEventListener('click',()=>{
+    const r = $('right');
+    if (!document.fullscreenElement) r.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+
+  // Keyboard
+  document.addEventListener('keydown',e=>{
+    const tag=e.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+    switch(e.key){
+      case ' ': e.preventDefault(); if(isPlaying()) pauseMedia(); else playMedia(); break;
+      case 'ArrowLeft':  e.preventDefault(); seekTo(Math.max(0,getCurrentTime()-5)); break;
+      case 'ArrowRight': e.preventDefault(); seekTo(getCurrentTime()+5); break;
+      case 'r': case 'R': replay(); break;
+      case 'a': case 'A': $('ap-btn').click(); break;
+      case 'z': case 'Z': $('zh-btn').click(); break;
+      case '+': case '=': fontSize=Math.min(26,fontSize+1); $('fs-range').value=fontSize; updateFontSize(); break;
+      case '-': fontSize=Math.max(12,fontSize-1); $('fs-range').value=fontSize; updateFontSize(); break;
+      case 't': case 'T': $('theme-btn').click(); break;
+    }
+  });
+}
+
+function showLoad(m){ $('load-msg').textContent=m||'載入中…'; $('loading').classList.add('show'); }
+function hideLoad(){ $('loading').classList.remove('show'); }
+
+// init
+updateFontSize();
+</script>
+</body>
+</html>
