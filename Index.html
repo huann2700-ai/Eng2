@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnglishLeap v2 — Word by Word</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090f;
+  --s1: #111118;
+  --s2: #18181f;
+  --s3: #202030;
+  --ac: #00e5ff;
+  --ac2: #ffe066;
+  --ac3: #ff6b6b;
+  --ac4: #a78bfa;
+  --txt: #eeeeff;
+  --dim: #6060a0;
+  --bd: rgba(0,229,255,0.13);
+  --glow: 0 0 28px rgba(0,229,255,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Noto Sans TC',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+
+/* ── HEADER ── */
+header{position:relative;z-index:20;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:rgba(9,9,15,0.85);backdrop-filter:blur(12px)}
+.logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.02em}
+.logo em{color:var(--ac);font-style:normal}
+.badge{display:inline-block;background:var(--ac);color:#000;font-size:0.5rem;font-family:'Space Mono',monospace;padding:2px 5px;border-radius:3px;vertical-align:super;margin-left:3px;font-weight:700;letter-spacing:0.06em}
+.hdr-r{display:flex;gap:10px;align-items:center}
+.hdr-tag{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);letter-spacing:0.08em}
+
+/* ── MAIN ── */
+main{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:32px 18px 80px}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:22px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:4px}
+.tab{flex:1;text-align:center;padding:9px;font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.06em;border-radius:8px;cursor:pointer;color:var(--dim);transition:all .2s}
+.tab.on{background:var(--ac);color:#000;font-weight:700}
+
+/* ── PANEL ── */
+.panel{display:none}
+.panel.on{display:block}
+
+/* ── URL SECTION ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:22px;margin-bottom:18px}
+.card-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--ac);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;display:block}
+.row{display:flex;gap:10px}
+input[type=text],textarea{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:12px 16px;color:var(--txt);font-family:'Space Mono',monospace;font-size:0.82rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input[type=text]::placeholder,textarea::placeholder{color:var(--dim)}
+input[type=text]:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(0,229,255,0.1)}
+textarea{resize:vertical;min-height:110px;font-size:0.75rem;line-height:1.55}
+.btn{background:var(--ac);color:#000;border:none;border-radius:9px;padding:12px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:transform .15s,box-shadow .15s;white-space:nowrap;letter-spacing:0.02em}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,229,255,0.32)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:var(--s2);color:var(--ac);border:1px solid var(--bd)}
+.btn-ghost:hover{background:rgba(0,229,255,0.08);border-color:var(--ac);box-shadow:none}
+
+/* Chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.chip-label{font-size:0.68rem;color:var(--dim);font-family:'Space Mono',monospace}
+.chip{background:var(--s2);border:1px solid var(--bd);color:var(--ac);font-size:0.68rem;padding:4px 11px;border-radius:18px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .15s}
+.chip:hover{background:rgba(0,229,255,0.1);border-color:var(--ac)}
+
+/* Status */
+#status{display:none;align-items:center;gap:8px;padding:9px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:7px;margin-top:10px;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--dim)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0}
+.dot.spin{animation:dotpulse 1s infinite}
+@keyframes dotpulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* Notice */
+.notice{background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.2);border-radius:9px;padding:11px 15px;font-size:0.75rem;color:#c4b5fd;line-height:1.65;margin-top:12px;font-family:'Space Mono',monospace}
+.notice strong{color:var(--ac)}
+
+/* ── PLAYER AREA ── */
+#player-area{display:none;flex-direction:column;gap:0}
+
+/* Video */
+.vid-wrap{position:relative;width:100%;padding-bottom:56.25%;border-radius:14px 14px 0 0;overflow:hidden;border:1px solid var(--bd);border-bottom:none;background:#000}
+.vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%}
+
+/* Overlay controls bar */
+.vid-bar{background:var(--s1);border-left:1px solid var(--bd);border-right:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.time-display{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--dim);min-width:80px}
+.progress-wrap{flex:1;height:4px;background:var(--s3);border-radius:2px;cursor:pointer;position:relative;min-width:100px}
+.progress-fill{height:100%;background:var(--ac);border-radius:2px;width:0%;transition:width .1s linear;pointer-events:none}
+.progress-wrap:hover .progress-fill{background:var(--ac2)}
+.spd-grp{display:flex;gap:4px}
+.spd{background:var(--s2);border:1px solid var(--bd);color:var(--dim);font-size:0.62rem;font-family:'Space Mono',monospace;padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .15s}
+.spd.on,.spd:hover{background:rgba(0,229,255,0.1);border-color:var(--ac);color:var(--ac)}
+
+/* Subtitle panel */
+.sub-panel{background:var(--s1);border:1px solid var(--bd);border-radius:0 0 14px 14px;padding:20px 24px 18px}
+.sub-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.sub-top-l{font-family:'Space Mono',monospace;font-size:0.63rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+.mode-grp{display:flex;gap:5px}
+.mode-btn{background:var(--s2);border:1px solid var(--bd);color:var(--dim);font-size:0.67rem;font-family:'Space Mono',monospace;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
+.mode-btn.on{background:rgba(255,224,102,0.12);border-color:var(--ac2);color:var(--ac2)}
+
+/* Words */
+#word-display{display:flex;flex-wrap:wrap;gap:4px 2px;align-items:baseline;min-height:70px;padding:4px 0}
+.wt{display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 7px;border-radius:7px;transition:background .15s;position:relative;user-select:none}
+.wt:hover{background:rgba(255,255,255,0.04)}
+.we{font-family:'Syne',sans-serif;font-size:clamp(1rem,2.4vw,1.55rem);font-weight:700;color:var(--dim);transition:color .12s,transform .12s;letter-spacing:-0.01em;line-height:1.1}
+.wz{font-size:0.58rem;color:transparent;transition:all .2s;white-space:nowrap;font-weight:400;height:10px}
+.wt:hover .wz{color:var(--ac)}
+
+/* Active word */
+.wt.active .we{color:var(--ac2);transform:scale(1.14) translateY(-2px);text-shadow:0 0 18px rgba(255,224,102,0.45)}
+.wt.active .wz{color:var(--ac2)}
+
+/* Passed word */
+.wt.passed .we{color:var(--txt)}
+
+/* Karaoke mode */
+.wt.kara-fill .we{color:var(--ac2)}
+.wt.kara-part{position:relative;overflow:hidden}
+.wt.kara-part .we{color:var(--dim)}
+.kara-over{position:absolute;top:0;left:0;height:100%;overflow:hidden;display:flex;align-items:center;pointer-events:none}
+.kara-over .we{color:var(--ac2);text-shadow:0 0 18px rgba(255,224,102,0.4)}
+
+/* Sub progress */
+.sub-prog{margin-top:14px;height:2px;background:var(--s3);border-radius:2px;overflow:hidden}
+.sub-prog-fill{height:100%;background:var(--ac);width:0%;transition:width .1s linear}
+
+/* ── TRANSCRIPT ── */
+.tx-section{margin-top:18px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.tx-head{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.tx-title{font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tx-body{max-height:280px;overflow-y:auto;display:none}
+.tx-body.open{display:block}
+.tx-row{display:flex;gap:14px;margin:0;cursor:pointer;padding:9px 22px;transition:background .15s;align-items:flex-start;border-bottom:1px solid rgba(0,229,255,0.04)}
+.tx-row:hover{background:rgba(255,255,255,0.03)}
+.tx-row.active-tx{background:rgba(0,229,255,0.06)}
+.tx-t{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--ac);min-width:42px;padding-top:2px;flex-shrink:0}
+.tx-s{font-size:0.85rem;line-height:1.55;color:var(--dim)}
+.tx-row.active-tx .tx-s{color:var(--txt)}
+
+/* ── JSON PASTE PANEL ── */
+.json-help{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:14px 16px;font-family:'Space Mono',monospace;font-size:0.68rem;line-height:1.75;color:var(--dim);margin-bottom:12px}
+.json-help strong{color:var(--ac)}
+.json-help code{color:var(--ac2);background:rgba(255,224,102,0.08);padding:1px 5px;border-radius:3px}
+
+/* ── WORD POPUP ── */
+#wpop{position:fixed;background:var(--s1);border:1px solid var(--ac);border-radius:11px;padding:13px 16px;max-width:230px;z-index:1000;box-shadow:0 8px 28px rgba(0,0,0,0.55),var(--glow);display:none;pointer-events:none}
+.pop-w{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ac2);margin-bottom:3px}
+.pop-ph{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--dim);margin-bottom:7px}
+.pop-d{font-size:0.78rem;color:var(--txt);line-height:1.5}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--s2)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+@media(max-width:600px){header{padding:14px 16px}main{padding:18px 10px 60px}.row{flex-direction:column}.sub-panel{padding:14px}.we{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">English<em>Leap</em><span class="badge">V2</span></div>
+  <div class="hdr-r">
+    <span class="hdr-tag">WORD · BY · WORD</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <div class="tab on" id="tab-preset" onclick="switchTab('preset')">🎬 內建示範影片</div>
+    <div class="tab" id="tab-url" onclick="switchTab('url')">🔗 輸入 YouTube 網址</div>
+    <div class="tab" id="tab-json" onclick="switchTab('json')">📋 貼入自訂字幕</div>
+  </div>
+
+  <!-- PANEL 1: PRESET -->
+  <div class="panel on" id="panel-preset">
+    <div class="card">
+      <span class="card-label">// 選擇示範影片（已內建字幕，100% 穩定）</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:4px">
+        <div class="chip" style="padding:12px;border-radius:10px;font-size:0.75rem;line-height:1.5" onclick="loadPreset('steve')">
+          🍎 <strong>Steve Jobs</strong><br>Stanford 2005 畢業演講<br><span style="color:var(--dim)">中階・勵志</span>
+        </div>
+        <div class="chip" style="padding:12px;border-radius:10px;font-size:0.75rem;line-height:1.5" onclick="loadPreset('obama')">
+          🎤 <strong>Obama</strong><br>Yes We Can 演講節選<br><span style="color:var(--dim)">中階・政治</span>
+        </div>
+        <div class="chip" style="padding:12px;border-radius:10px;font-size:0.75rem;line-height:1.5" onclick="loadPreset('ted')">
+          💡 <strong>TED 風格</strong><br>關於學習的演講示範<br><span style="color:var(--dim)">初中階・教育</span>
+        </div>
+        <div class="chip" style="padding:12px;border-radius:10px;font-size:0.75rem;line-height:1.5" onclick="loadPreset('daily')">
+          ☕ <strong>日常對話</strong><br>點餐・問路・自我介紹<br><span style="color:var(--dim)">初階・生活</span>
+        </div>
+      </div>
+    </div>
+    <div class="notice">✅ 內建示範模式：字幕 100% 預置，不依賴任何外部 API，完全離線可用。<br>影片本身仍透過 YouTube 播放（需連網），但字幕同步絕對穩定。</div>
+  </div>
+
+  <!-- PANEL 2: URL -->
+  <div class="panel" id="panel-url">
+    <div class="card">
+      <span class="card-label">// 輸入 YouTube 網址（動態抓取字幕）</span>
+      <div class="row">
+        <input type="text" id="url-input" placeholder="https://www.youtube.com/watch?v=..." />
+        <button class="btn" onclick="loadFromUrl()">載入 →</button>
+      </div>
+      <div class="chips">
+        <span class="chip-label">快速試用：</span>
+        <span class="chip" onclick="tryUrl('arj7oStGLkU')">TED Talk</span>
+        <span class="chip" onclick="tryUrl('dQw4w9WgXcQ')">Rick Astley</span>
+        <span class="chip" onclick="tryUrl('JGwWNGJdvx8')">Ed Sheeran</span>
+      </div>
+      <div id="status"><span class="dot spin" id="sdot"></span><span id="stxt">載入中...</span></div>
+    </div>
+    <div class="notice">
+      ⚠️ <strong>說明：</strong>瀏覽器有跨域限制（CORS），無法直接呼叫 YouTube 字幕 API。<br>
+      本工具依序嘗試多個公開 Proxy，若全部失敗會提示你改用「貼入字幕」模式。<br>
+      <strong>最穩定做法：</strong>用下方 📋 Tab 貼入字幕，或選上方示範影片。
+    </div>
+  </div>
+
+  <!-- PANEL 3: JSON -->
+  <div class="panel" id="panel-json">
+    <div class="card">
+      <span class="card-label">// 貼入字幕 JSON（最穩定方式）</span>
+      <div class="json-help">
+        格式：<code>[{"start":0,"dur":4,"text":"Hello world"},...]</code><br>
+        取得方式：<strong>① </strong>用 <code>yt-dlp --write-auto-sub --skip-download "網址"</code> 下載後轉換<br>
+        <strong>② </strong>或複製下方任一示範格式直接試用<br>
+        <strong>③ </strong>也可先用上方 URL 模式，成功後點「匯出字幕」取得 JSON
+      </div>
+      <div class="row" style="margin-bottom:10px">
+        <input type="text" id="json-vid" placeholder="YouTube Video ID（例：dQw4w9WgXcQ）11位英數字" />
+      </div>
+      <textarea id="json-captions" placeholder='[
+  {"start":0,"dur":3.5,"text":"We are never ever getting back together."},
+  {"start":3.5,"dur":4,"text":"Like ever. I remember when we broke up the first time."},
+  {"start":7.5,"dur":3.8,"text":"Saying this is it, I have had enough."}
+]'></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn" onclick="loadFromJson()">載入影片 + 字幕 →</button>
+        <button class="btn btn-ghost" onclick="loadJsonSample('steve')">貼入 Steve Jobs 示範</button>
+        <button class="btn btn-ghost" onclick="loadJsonSample('daily')">貼入日常對話示範</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER (shared) -->
+  <div id="player-area">
+
+    <!-- YT iframe -->
+    <div class="vid-wrap">
+      <div id="yt-player"></div>
+    </div>
+
+    <!-- Controls bar -->
+    <div class="vid-bar">
+      <span class="time-display" id="time-disp">0:00 / 0:00</span>
+      <div class="progress-wrap" id="prog-wrap">
+        <div class="progress-fill" id="prog-fill"></div>
+      </div>
+      <div class="spd-grp">
+        <span class="spd" onclick="setSpd(0.75,this)">0.75x</span>
+        <span class="spd on" onclick="setSpd(1,this)">1x</span>
+        <span class="spd" onclick="setSpd(1.25,this)">1.25x</span>
+        <span class="spd" onclick="setSpd(1.5,this)">1.5x</span>
+      </div>
+      <button class="btn btn-ghost" style="font-size:0.68rem;padding:5px 10px" onclick="exportCaptions()">匯出字幕 JSON</button>
+    </div>
+
+    <!-- Subtitle display -->
+    <div class="sub-panel">
+      <div class="sub-top">
+        <span class="sub-top-l">// 同步字幕 — 點擊單字查詢</span>
+        <div class="mode-grp">
+          <button class="mode-btn on" id="m-word" onclick="setMode('word')">逐字</button>
+          <button class="mode-btn" id="m-kara" onclick="setMode('kara')">卡拉OK</button>
+          <button class="mode-btn" id="m-hide" onclick="setMode('hide')">隱藏</button>
+          <button class="mode-btn" id="m-bilingual" onclick="setMode('bi')">雙語</button>
+        </div>
+      </div>
+      <div id="word-display"></div>
+      <div class="sub-prog"><div class="sub-prog-fill" id="spf"></div></div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="tx-section">
+      <div class="tx-head">
+        <span class="tx-title">// 完整字幕</span>
+        <button class="btn btn-ghost" style="font-size:0.68rem;padding:5px 12px" onclick="toggleTx(this)">展開 ↓</button>
+      </div>
+      <div class="tx-body" id="tx-body"></div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Word popup -->
+<div id="wpop">
+  <div class="pop-w" id="pop-w"></div>
+  <div class="pop-ph" id="pop-ph"></div>
+  <div class="pop-d" id="pop-d"></div>
+</div>
+
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+// ═══════════════════════════════════════════════
+// PRESET CAPTIONS DATABASE
+// ═══════════════════════════════════════════════
+const PRESETS = {
+  steve: {
+    vid: 'UF8uR6Z6KLc',
+    title: 'Steve Jobs Stanford 2005',
+    captions: [
+      {start:0,dur:4.5,text:"I am honored to be with you today at your commencement from one of the finest universities in the world."},
+      {start:4.5,dur:4,text:"I never graduated from college. Truth be told, this is the closest I've ever gotten to a college graduation."},
+      {start:8.5,dur:3.5,text:"Today I want to tell you three stories from my life. That's it. No big deal. Just three stories."},
+      {start:12,dur:4,text:"The first story is about connecting the dots. I dropped out of Reed College after the first six months."},
+      {start:16,dur:4,text:"But then stayed around as a drop-in for another eighteen months or so before I really quit."},
+      {start:20,dur:4.5,text:"So why did I drop out? It started before I was born. My biological mother was a young, unwed college graduate student."},
+      {start:24.5,dur:4,text:"And she decided to put me up for adoption. She felt very strongly that I should be adopted by college graduates."},
+      {start:28.5,dur:4,text:"Everything seemed to be lined up except the fact that I popped out as a boy and they wanted a girl."},
+      {start:32.5,dur:3.5,text:"So my parents, who were on a waiting list, got a call in the middle of the night asking if they wanted a boy."},
+      {start:36,dur:4,text:"They said of course. My biological mother later found out that my mother had never graduated from college."},
+      {start:40,dur:4,text:"And that my father had never graduated from high school. She refused to sign the final adoption papers."},
+      {start:44,dur:4,text:"She only relented a few months later when my parents promised that I would someday go to college."},
+      {start:48,dur:4.5,text:"And seventeen years later I did go to college. But I naively chose a college that was almost as expensive as Stanford."},
+      {start:52.5,dur:4,text:"And all of my working-class parents' savings were being spent on my college tuition."},
+      {start:56.5,dur:4,text:"After six months, I couldn't see the value in it. I had no idea what I wanted to do with my life."},
+      {start:60.5,dur:4,text:"And no idea how college was going to help me figure it out. And here I was spending all of the money."},
+      {start:64.5,dur:4.5,text:"My parents had saved their entire life. So I decided to drop out and trust that it would all work out okay."},
+      {start:69,dur:4,text:"It was pretty scary at the time, but looking back it was one of the best decisions I ever made."},
+      {start:73,dur:4.5,text:"The minute I dropped out I could stop taking the required classes that didn't interest me."},
+      {start:77.5,dur:4,text:"And begin dropping in on the ones that looked far more interesting. It wasn't all romantic."},
+      {start:81.5,dur:4,text:"I didn't have a dorm room, so I slept on the floor in friends' rooms, I returned coke bottles for the five cent deposits."},
+      {start:85.5,dur:4,text:"To buy food with, and I would walk the seven miles across town every Sunday night to get one good meal a week."},
+      {start:89.5,dur:4.5,text:"At the Hare Krishna temple. I loved it. And much of what I stumbled into by following my curiosity."},
+      {start:94,dur:4,text:"And intuition turned out to be priceless later on. Let me give you one example."},
+      {start:98,dur:4.5,text:"Reed College at that time offered perhaps the best calligraphy instruction in the country."},
+      {start:102.5,dur:4,text:"Throughout the campus every poster, every label on every drawer, was beautifully hand calligraphed."},
+      {start:106.5,dur:4,text:"Because I had dropped out and didn't have to take the normal classes, I decided to take a calligraphy class."},
+      {start:110.5,dur:4.5,text:"I learned about serif and sans serif typefaces, about varying the amount of space between different letter combinations."},
+      {start:115,dur:4,text:"About what makes great typography great. It was beautiful, historical, artistically subtle in a way that science can't capture."},
+      {start:119,dur:4.5,text:"And I found it fascinating. None of this had even a hope of any practical application in my life."},
+      {start:123.5,dur:4.5,text:"But ten years later, when we were designing the first Macintosh computer, it all came back to me."},
+      {start:128,dur:4,text:"And we designed it all into the Mac. It was the first computer with beautiful typography."},
+    ]
+  },
+  obama: {
+    vid: 'Fe751kMBwms',
+    title: 'Obama — Yes We Can',
+    captions: [
+      {start:0,dur:4,text:"If there is anyone out there who still doubts that America is a place where all things are possible."},
+      {start:4,dur:3.5,text:"Who still wonders if the dream of our founders is alive in our time."},
+      {start:7.5,dur:4,text:"Who still questions the power of our democracy, tonight is your answer."},
+      {start:11.5,dur:4,text:"It's the answer told by lines that stretched around schools and churches."},
+      {start:15.5,dur:3.5,text:"In numbers this nation has never seen by people who waited three hours and four hours."},
+      {start:19,dur:4,text:"Many for the first time in their lives, because they believed that this time must be different."},
+      {start:23,dur:4,text:"That their voices could be that difference. It's the answer spoken by young and old."},
+      {start:27,dur:4.5,text:"Rich and poor, Democrat and Republican, black, white, Hispanic, Asian, Native American."},
+      {start:31.5,dur:3.5,text:"Gay, straight, disabled and not disabled. Americans who sent a message to the world."},
+      {start:35,dur:4,text:"That we have never been just a collection of individuals or a collection of red states and blue states."},
+      {start:39,dur:3.5,text:"We are, and always will be, the United States of America."},
+      {start:42.5,dur:4,text:"It's been a long time coming, but tonight, because of what we did on this date."},
+      {start:46.5,dur:4,text:"In this election, at this defining moment, change has come to America."},
+      {start:50.5,dur:4,text:"I just received a very gracious call from Senator McCain. He fought long and hard in this campaign."},
+      {start:54.5,dur:4,text:"And he has fought even longer and harder for the country that he loves."},
+      {start:58.5,dur:4,text:"He has endured sacrifices for America that most of us cannot begin to imagine."},
+      {start:62.5,dur:4,text:"We are better off for the service rendered by this brave and selfless leader."},
+      {start:66.5,dur:4,text:"I congratulate him, I congratulate Governor Palin, for all that they have achieved."},
+      {start:70.5,dur:4.5,text:"And I look forward to working with them to renew this nation's promise in the months ahead."},
+    ]
+  },
+  ted: {
+    vid: '_ZBKX-6Gz6A',
+    title: 'TED-style: The Secret of Learning',
+    captions: [
+      {start:0,dur:4,text:"What if I told you that the way you have been studying your whole life is wrong?"},
+      {start:4,dur:3.5,text:"Not just a little bit wrong. Fundamentally, deeply wrong."},
+      {start:7.5,dur:4,text:"Most people believe that to learn something, you need to study it over and over again."},
+      {start:11.5,dur:4,text:"Read the chapter, highlight the important parts, review your notes before the exam."},
+      {start:15.5,dur:4,text:"But decades of research in cognitive science tell us something completely different."},
+      {start:19.5,dur:4,text:"The most effective way to learn is not to study more. It is to be tested more."},
+      {start:23.5,dur:4,text:"This is called retrieval practice. And it works because every time you try to recall something."},
+      {start:27.5,dur:4,text:"You are strengthening the neural pathways that hold that memory in your brain."},
+      {start:31.5,dur:4,text:"It is like walking through a forest. The more often you walk the same path, the clearer it becomes."},
+      {start:35.5,dur:4,text:"So next time you want to learn something, close the book and try to remember what you just read."},
+      {start:39.5,dur:4,text:"It will feel harder. It will feel less comfortable. And that discomfort is exactly the point."},
+      {start:43.5,dur:4,text:"Because struggle is not the enemy of learning. Struggle is the mechanism of learning."},
+      {start:47.5,dur:3.5,text:"Thank you. And now go test yourself on everything I just said."},
+    ]
+  },
+  daily: {
+    vid: null, // no video, audio-only mode demo
+    title: '日常英語對話',
+    captions: [
+      {start:0,dur:3.5,text:"Good morning! Could I get a large coffee, please?"},
+      {start:3.5,dur:3,text:"Sure! Would you like any milk or sugar with that?"},
+      {start:6.5,dur:3,text:"Just a little milk, please. And a blueberry muffin."},
+      {start:9.5,dur:2.5,text:"Coming right up! Is that for here or to go?"},
+      {start:12,dur:3,text:"To go, please. How much does that come to?"},
+      {start:15,dur:2.5,text:"That will be six dollars and fifty cents."},
+      {start:17.5,dur:3,text:"Here you go. Keep the change. Have a great day!"},
+      {start:20.5,dur:2.5,text:"Thank you so much! You too! Enjoy your morning!"},
+      {start:23,dur:4,text:"Excuse me, could you tell me how to get to the nearest subway station?"},
+      {start:27,dur:4,text:"Of course! Go straight down this street for two blocks, then turn left."},
+      {start:31,dur:3.5,text:"You will see the station entrance right there on your right side."},
+      {start:34.5,dur:2.5,text:"Thank you! About how far is it to walk?"},
+      {start:37,dur:3,text:"It should take you about five minutes. It is not far at all."},
+      {start:40,dur:3,text:"Great, I appreciate your help. Have a wonderful day!"},
+      {start:43,dur:3.5,text:"Hi there! My name is Alex. I am originally from Taiwan."},
+      {start:46.5,dur:3.5,text:"I have been living in New York for about three years now."},
+      {start:50,dur:3.5,text:"I work as a software engineer at a tech startup downtown."},
+      {start:53.5,dur:4,text:"In my free time, I love hiking, cooking, and learning new languages."},
+      {start:57.5,dur:3.5,text:"I am currently studying English because I want to improve my fluency."},
+      {start:61,dur:4,text:"Nice to meet all of you! I am looking forward to getting to know everyone better."},
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let captions = [];
+let curIdx = -1;
+let mode = 'word';
+let ytPlayer = null;
+let syncInterval = null;
+let playerReady = false;
+let lastRenderedIdx = -2;
+let duration = 0;
+
+// ═══════════════════════════════════════════════
+// YOUTUBE IFRAME API
+// ═══════════════════════════════════════════════
+function onYouTubeIframeAPIReady() {
+  // Will be initialized on demand
+}
+
+function createPlayer(videoId, onReady) {
+  if (ytPlayer) {
+    try { ytPlayer.destroy(); } catch(e) {}
+    ytPlayer = null;
+    playerReady = false;
+  }
+
+  document.getElementById('yt-player').innerHTML = '';
+
+  ytPlayer = new YT.Player('yt-player', {
+    videoId: videoId,
+    playerVars: {
+      rel: 0, modestbranding: 1, cc_load_policy: 0,
+      iv_load_policy: 3, hl: 'zh-TW'
+    },
+    events: {
+      onReady: (e) => {
+        playerReady = true;
+        duration = ytPlayer.getDuration() || 0;
+        onReady && onReady();
+        startSync();
+      },
+      onStateChange: (e) => {
+        if (e.data === YT.PlayerState.ENDED) {
+          if (syncInterval) clearInterval(syncInterval);
+        }
+      },
+      onError: (e) => {
+        console.warn('YT error', e.data);
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SYNC LOOP — uses real YT API time
+// ═══════════════════════════════════════════════
+function startSync() {
+  if (syncInterval) clearInterval(syncInterval);
+  syncInterval = setInterval(() => {
+    if (!playerReady || !ytPlayer) return;
+    try {
+      const t = ytPlayer.getCurrentTime() || 0;
+      duration = ytPlayer.getDuration() || duration;
+      updateTimebar(t, duration);
+      updateSubtitle(t);
+    } catch(e) {}
+  }, 80);
+}
+
+function updateTimebar(t, dur) {
+  document.getElementById('time-disp').textContent = `${fmt(t)} / ${fmt(dur)}`;
+  document.getElementById('prog-fill').style.width = dur > 0 ? (t/dur*100)+'%' : '0%';
+}
+
+function fmt(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════
+// SUBTITLE LOGIC
+// ═══════════════════════════════════════════════
+function updateSubtitle(t) {
+  let idx = -1;
+  for (let i = 0; i < captions.length; i++) {
+    const c = captions[i];
+    if (t >= c.start && t < c.start + c.dur) { idx = i; break; }
+  }
+
+  // Update transcript highlight
+  if (idx !== curIdx) {
+    document.querySelectorAll('.tx-row').forEach(r => r.classList.remove('active-tx'));
+    if (idx >= 0) {
+      const row = document.getElementById('tr'+idx);
+      if (row) { row.classList.add('active-tx'); row.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+    }
+  }
+
+  if (idx !== curIdx || lastRenderedIdx !== idx) {
+    curIdx = idx;
+    lastRenderedIdx = idx;
+    renderWords(idx >= 0 ? captions[idx] : null, t);
+  } else if (idx >= 0) {
+    updateActiveWord(t, captions[idx]);
+    const c = captions[idx];
+    document.getElementById('spf').style.width = Math.min(100, (t-c.start)/c.dur*100)+'%';
+  }
+}
+
+function renderWords(cue, t) {
+  const wd = document.getElementById('word-display');
+  wd.innerHTML = '';
+  if (!cue) { document.getElementById('spf').style.width = '0%'; return; }
+
+  const words = tokenize(cue.text);
+  const dur = cue.dur;
+
+  words.forEach((tok, i) => {
+    if (tok.type === 'space') {
+      const sp = document.createElement('span');
+      sp.style.width = '3px'; wd.appendChild(sp); return;
+    }
+
+    const word = tok.val;
+    const clean = word.replace(/[^a-zA-Z'-]/g,'');
+    const wStart = cue.start + (i / words.length) * dur;
+    const wEnd = cue.start + ((i+1) / words.length) * dur;
+
+    const span = document.createElement('span');
+    span.className = 'wt';
+    span.dataset.ws = wStart;
+    span.dataset.we = wEnd;
+    span.dataset.word = clean.toLowerCase();
+
+    const isActive = t >= wStart && t < wEnd;
+    const isPassed = t >= wEnd;
+    if (isActive) span.classList.add('active');
+    if (isPassed) span.classList.add('passed');
+
+    const zh = getZH(clean.toLowerCase());
+    const showZh = (mode === 'bi' || mode === 'word' || mode === 'kara');
+
+    if (mode === 'hide') {
+      span.innerHTML = `<span class="we" style="color:var(--s3);text-shadow:none">████</span>`;
+      if (isActive) span.querySelector('.we').style.cssText = '';
+    } else if (mode === 'kara' && isActive) {
+      const fill = Math.max(0, Math.min(100, (t - wStart) / (wEnd - wStart) * 100));
+      span.classList.add('kara-part');
+      span.innerHTML = `
+        <span class="we">${word}</span>
+        <div class="kara-over" style="width:${fill}%"><span class="we">${word}</span></div>
+        ${showZh ? `<span class="wz">${zh}</span>` : ''}`;
+    } else {
+      span.innerHTML = `<span class="we">${word}</span>${showZh ? `<span class="wz">${zh}</span>` : ''}`;
+    }
+
+    span.addEventListener('click', e => showPop(e, clean, zh, word));
+    wd.appendChild(span);
+  });
+
+  document.getElementById('spf').style.width = Math.min(100, (t-cue.start)/cue.dur*100)+'%';
+}
+
+function updateActiveWord(t, cue) {
+  const words = document.querySelectorAll('.wt');
+  if (!words.length) return;
+
+  words.forEach(span => {
+    const ws = parseFloat(span.dataset.ws);
+    const we = parseFloat(span.dataset.we);
+    const isActive = t >= ws && t < we;
+    const isPassed = t >= we;
+
+    if (mode === 'kara' && isActive && span.classList.contains('kara-part')) {
+      const fill = Math.max(0, Math.min(100, (t - ws) / (we - ws) * 100));
+      const ov = span.querySelector('.kara-over');
+      if (ov) ov.style.width = fill + '%';
+    }
+
+    if (isActive !== span.classList.contains('active') ||
+        isPassed !== span.classList.contains('passed')) {
+      span.classList.toggle('active', isActive);
+      span.classList.toggle('passed', isPassed);
+
+      if (mode === 'kara' && isActive && !span.classList.contains('kara-part')) {
+        lastRenderedIdx = -2; // force re-render for karaoke
+      }
+    }
+  });
+  document.getElementById('spf').style.width = Math.min(100, (t-cue.start)/cue.dur*100)+'%';
+}
+
+function tokenize(text) {
+  const parts = text.split(/(\s+)/);
+  return parts.map(p => ({ type: /^\s+$/.test(p) ? 'space' : 'word', val: p }));
+}
+
+// ═══════════════════════════════════════════════
+// TRANSCRIPT
+// ═══════════════════════════════════════════════
+function buildTranscript() {
+  const body = document.getElementById('tx-body');
+  body.innerHTML = '';
+  captions.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'tx-row'; row.id = 'tr'+i;
+    row.innerHTML = `<span class="tx-t">${fmt(c.start)}</span><span class="tx-s">${c.text}</span>`;
+    row.onclick = () => seekTo(c.start);
+    body.appendChild(row);
+  });
+}
+
+function toggleTx(btn) {
+  const body = document.getElementById('tx-body');
+  body.classList.toggle('open');
+  btn.textContent = body.classList.contains('open') ? '收起 ↑' : '展開 ↓';
+}
+
+// ═══════════════════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  ['word','kara','hide','bi'].forEach(x => document.getElementById('m-'+x)?.classList.remove('on'));
+  const el = document.getElementById('m-'+m); if(el) el.classList.add('on');
+  lastRenderedIdx = -2;
+}
+
+function setSpd(s, el) {
+  document.querySelectorAll('.spd').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  if (ytPlayer && playerReady) ytPlayer.setPlaybackRate(s);
+}
+
+function seekTo(t) {
+  if (ytPlayer && playerReady) ytPlayer.seekTo(t, true);
+}
+
+// Progress bar click
+document.getElementById('prog-wrap').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - r.left) / r.width;
+  seekTo(pct * duration);
+});
+
+// ═══════════════════════════════════════════════
+// LOAD FUNCTIONS
+// ═══════════════════════════════════════════════
+function loadPreset(key) {
+  const p = PRESETS[key];
+  if (!p) return;
+  captions = p.captions;
+  buildTranscript();
+  showPlayer();
+  curIdx = -1; lastRenderedIdx = -2;
+
+  if (p.vid) {
+    createPlayer(p.vid);
+  } else {
+    // No video — show placeholder in player area
+    document.getElementById('yt-player').innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:var(--s2);color:var(--dim);font-family:Space Mono,monospace;font-size:0.8rem;text-align:center;padding:20px">
+        📻 此示範無影片<br>字幕將自動播放示範<br><br>
+        <button onclick="startDemoPlay()" style="margin-top:10px;padding:8px 18px;background:var(--ac);color:#000;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer">▶ 開始示範播放</button>
+      </div>`;
+    playerReady = false;
+  }
+}
+
+let demoTimer = null;
+let demoTime = 0;
+
+function startDemoPlay() {
+  demoTime = 0;
+  if (syncInterval) clearInterval(syncInterval);
+  if (demoTimer) clearInterval(demoTimer);
+  demoTimer = setInterval(() => {
+    demoTime += 0.08;
+    duration = captions[captions.length-1].start + captions[captions.length-1].dur + 1;
+    updateTimebar(demoTime, duration);
+    updateSubtitle(demoTime);
+    if (demoTime > duration) clearInterval(demoTimer);
+  }, 80);
+}
+
+async function loadFromUrl() {
+  const raw = document.getElementById('url-input').value.trim();
+  const vid = extractVid(raw);
+  if (!vid) { showSt('❌ 無效的 YouTube 網址', false); return; }
+
+  showSt('🔍 抓取字幕中...', true);
+  const caps = await fetchCaptions(vid);
+
+  if (caps.length > 0) {
+    captions = caps;
+    showSt(`✅ 成功載入 ${caps.length} 段字幕`, false);
+  } else {
+    showSt('❌ 字幕抓取失敗 → 請改用「貼入字幕」Tab', false);
+    return;
+  }
+
+  buildTranscript();
+  showPlayer();
+  curIdx = -1; lastRenderedIdx = -2;
+  createPlayer(vid);
+}
+
+function tryUrl(vid) {
+  document.getElementById('url-input').value = `https://www.youtube.com/watch?v=${vid}`;
+  loadFromUrl();
+}
+
+function loadFromJson() {
+  const vid = document.getElementById('json-vid').value.trim();
+  const raw = document.getElementById('json-captions').value.trim();
+  if (!raw) { alert('請貼入字幕 JSON'); return; }
+
+  let caps;
+  try {
+    caps = JSON.parse(raw);
+    if (!Array.isArray(caps)) throw new Error();
+  } catch(e) { alert('JSON 格式錯誤，請檢查'); return; }
+
+  captions = caps.filter(c => c.start !== undefined && c.text);
+  if (!captions.length) { alert('未偵測到有效字幕'); return; }
+
+  buildTranscript();
+  showPlayer();
+  curIdx = -1; lastRenderedIdx = -2;
+
+  if (vid && vid.length >= 8) {
+    const cleanVid = extractVid(vid) || vid;
+    createPlayer(cleanVid);
+  } else {
+    document.getElementById('yt-player').innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:var(--s2);color:var(--dim);font-family:Space Mono,monospace;font-size:0.75rem;text-align:center;padding:20px">
+        ✅ 字幕已載入 (${captions.length} 段)<br>請輸入 Video ID 以顯示影片<br>或點下方按鈕示範字幕同步
+        <br><br><button onclick="startDemoPlay()" style="margin-top:10px;padding:8px 18px;background:var(--ac);color:#000;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer">▶ 示範播放</button>
+      </div>`;
+  }
+}
+
+function loadJsonSample(key) {
+  const p = PRESETS[key];
+  if (!p) return;
+  document.getElementById('json-vid').value = p.vid || '';
+  document.getElementById('json-captions').value = JSON.stringify(p.captions, null, 2);
+}
+
+// ═══════════════════════════════════════════════
+// CAPTION FETCH (multi-proxy fallback)
+// ═══════════════════════════════════════════════
+async function fetchCaptions(vid) {
+  const langs = ['en', 'en-US', 'en-GB'];
+  const kinds = ['', '&kind=asr'];
+  const proxies = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  for (const lang of langs) {
+    for (const kind of kinds) {
+      const capUrl = `https://www.youtube.com/api/timedtext?v=${vid}&lang=${lang}${kind}&fmt=json3`;
+      for (const makeProxy of proxies) {
+        try {
+          const res = await fetch(makeProxy(capUrl), { signal: AbortSignal.timeout(7000) });
+          if (!res.ok) continue;
+          let text;
+          if (makeProxy(capUrl).includes('allorigins')) {
+            const j = await res.json(); text = j.contents;
+          } else {
+            text = await res.text();
+          }
+          const parsed = parseJSON3(text) || parseXML(text);
+          if (parsed && parsed.length > 2) return parsed;
+        } catch(e) { /* try next */ }
+      }
+    }
+  }
+  return [];
+}
+
+function parseJSON3(raw) {
+  try {
+    const d = JSON.parse(raw);
+    if (!d.events) return null;
+    return d.events
+      .filter(e => e.segs && e.tStartMs !== undefined)
+      .map(e => ({
+        start: e.tStartMs/1000,
+        dur: (e.dDurationMs||3000)/1000,
+        text: e.segs.map(s=>s.utf8||'').join('').replace(/\n/g,' ').trim()
+      }))
+      .filter(c => c.text.length > 1);
+  } catch(e) { return null; }
+}
+
+function parseXML(raw) {
+  try {
+    const doc = new DOMParser().parseFromString(raw,'text/xml');
+    const els = doc.querySelectorAll('text');
+    if (!els.length) return null;
+    return Array.from(els).map(t => ({
+      start: parseFloat(t.getAttribute('start')||0),
+      dur: parseFloat(t.getAttribute('dur')||3),
+      text: decodeEnt(t.textContent||'').replace(/\n/g,' ').trim()
+    })).filter(c=>c.text.length>1);
+  } catch(e) { return null; }
+}
+
+function decodeEnt(s) {
+  const el = document.createElement('textarea');
+  el.innerHTML = s; return el.value;
+}
+
+function extractVid(url) {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════
+function showPlayer() {
+  document.getElementById('player-area').style.display = 'flex';
+  window.scrollTo({top: document.getElementById('player-area').offsetTop - 20, behavior:'smooth'});
+}
+
+function switchTab(t) {
+  ['preset','url','json'].forEach(x => {
+    document.getElementById('tab-'+x).classList.remove('on');
+    document.getElementById('panel-'+x).classList.remove('on');
+  });
+  document.getElementById('tab-'+t).classList.add('on');
+  document.getElementById('panel-'+t).classList.add('on');
+}
+
+function showSt(msg, loading) {
+  const bar = document.getElementById('status'); bar.style.display='flex';
+  document.getElementById('stxt').textContent = msg;
+  const dot = document.getElementById('sdot');
+  dot.className = 'dot' + (loading ? ' spin' : '');
+  dot.style.background = msg.startsWith('✅') ? '#4ade80' : msg.startsWith('❌') ? '#f87171' : 'var(--ac)';
+  if (!loading) setTimeout(()=>{ bar.style.display='none'; }, 4000);
+}
+
+function exportCaptions() {
+  if (!captions.length) { alert('尚未載入字幕'); return; }
+  const blob = new Blob([JSON.stringify(captions, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'captions.json';
+  a.click();
+}
+
+// ═══════════════════════════════════════════════
+// WORD POPUP
+// ═══════════════════════════════════════════════
+const DICT = {
+  'honored':   {ph:'/ˈɒnəd/',def:'感到榮幸的'},
+  'commencement':{ph:'/kəˈmensmənt/',def:'畢業典禮；開始'},
+  'graduated': {ph:'/ˈɡrædjueɪtɪd/',def:'畢業的；畢業'},
+  'college':   {ph:'/ˈkɒlɪdʒ/',def:'大學；學院'},
+  'adopted':   {ph:'/əˈdɒptɪd/',def:'被收養的；採用的'},
+  'adoption':  {ph:'/əˈdɒpʃən/',def:'收養；採用'},
+  'biological':{ph:'/ˌbaɪəˈlɒdʒɪkəl/',def:'生物的；親生的'},
+  'naively':   {ph:'/naɪˈiːvli/',def:'天真地；幼稚地'},
+  'expensive': {ph:'/ɪkˈspensɪv/',def:'昂貴的；費用高的'},
+  'tuition':   {ph:'/tjuːˈɪʃən/',def:'學費；教學'},
+  'curiosity': {ph:'/ˌkjʊəriˈɒsɪti/',def:'好奇心'},
+  'intuition': {ph:'/ˌɪntjuːˈɪʃən/',def:'直覺；直覺力'},
+  'priceless': {ph:'/ˈpraɪsləs/',def:'無價的；非常珍貴的'},
+  'calligraphy':{ph:'/kəˈlɪɡrəfi/',def:'書法；書法藝術'},
+  'typefaces': {ph:'/ˈtaɪpfeɪsɪz/',def:'字體'},
+  'typography':{ph:'/taɪˈpɒɡrəfi/',def:'印刷術；版面設計'},
+  'democracy': {ph:'/dɪˈmɒkrəsi/',def:'民主；民主政治'},
+  'sacrifice': {ph:'/ˈsækrɪfaɪs/',def:'犧牲；奉獻'},
+  'selfless':  {ph:'/ˈselfləs/',def:'無私的；捨己的'},
+  'retrieval': {ph:'/rɪˈtriːvəl/',def:'檢索；取回'},
+  'cognitive': {ph:'/ˈkɒɡnɪtɪv/',def:'認知的；認知'},
+  'pathways':  {ph:'/ˈpɑːθweɪz/',def:'路徑；途徑；神經通路'},
+  'strengthen':{ph:'/ˈstreŋθən/',def:'加強；鞏固'},
+  'discomfort':{ph:'/dɪsˈkʌmfət/',def:'不適；不舒服'},
+  'mechanism': {ph:'/ˈmekənɪzəm/',def:'機制；機構；原理'},
+  'fundamental':{ph:'/ˌfʌndəˈmentəl/',def:'根本的；基礎的'},
+  'blueberry': {ph:'/ˈbluːberi/',def:'藍莓'},
+  'appreciate':{ph:'/əˈpriːʃieɪt/',def:'感謝；欣賞；理解'},
+  'fluency':   {ph:'/ˈfluːənsi/',def:'流利；流暢'},
+  'originally':{ph:'/əˈrɪdʒɪnəli/',def:'原本地；起初'},
+  'immersive': {ph:'/ɪˈmɜːrsɪv/',def:'沉浸式的；身臨其境的'},
+  'interactive':{ph:'/ˌɪntərˈæktɪv/',def:'互動的；交互的'},
+  'pronunciation':{ph:'/prəˌnʌnsiˈeɪʃən/',def:'發音；讀音'},
+  'definition':{ph:'/ˌdefɪˈnɪʃən/',def:'定義；釋義'},
+  'automatically':{ph:'/ˌɔːtəˈmætɪkli/',def:'自動地'},
+  'simultaneously':{ph:'/ˌsɪmlˈteɪniəsli/',def:'同時地'},
+  'gracious':  {ph:'/ˈɡreɪʃəs/',def:'親切的；仁慈的'},
+  'endured':   {ph:'/ɪnˈdjʊəd/',def:'忍耐；持久'},
+  'renew':     {ph:'/rɪˈnjuː/',def:'更新；恢復；續期'},
+  'learning':  {ph:'/ˈlɜːrnɪŋ/',def:'學習；知識'},
+  'practice':  {ph:'/ˈpræktɪs/',def:'練習；實踐'},
+  'improve':   {ph:'/ɪmˈpruːv/',def:'改善；提高'},
+  'quickly':   {ph:'/ˈkwɪkli/',def:'迅速地；很快'},
+  'started':   {ph:'/ˈstɑːrtɪd/',def:'開始；出發'},
+  'believe':   {ph:'/bɪˈliːv/',def:'相信；認為'},
+  'different': {ph:'/ˈdɪfrənt/',def:'不同的；各種的'},
+  'tonight':   {ph:'/təˈnaɪt/',def:'今晚；今夜'},
+  'question':  {ph:'/ˈkwestʃən/',def:'問題；疑問；質疑'},
+};
+
+function getZH(w) { return DICT[w]?.def?.split('；')[0] || ''; }
+
+function showPop(e, clean, zh, word) {
+  const pop = document.getElementById('wpop');
+  const def = DICT[clean] || {};
+  document.getElementById('pop-w').textContent = word;
+  document.getElementById('pop-ph').textContent = def.ph || '';
+  document.getElementById('pop-d').textContent = def.def || zh || '暫無釋義';
+  const r = e.target.getBoundingClientRect();
+  pop.style.left = Math.min(r.left, window.innerWidth-250)+'px';
+  pop.style.top = (r.bottom+8+window.scrollY)+'px';
+  pop.style.display = 'block';
+  clearTimeout(pop._t);
+  pop._t = setTimeout(hidePop, 4000);
+}
+
+function hidePop() { document.getElementById('wpop').style.display='none'; }
+document.addEventListener('click', e => { if(!e.target.closest('.wt')) hidePop(); });
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if (e.key==='ArrowRight' && ytPlayer && playerReady) ytPlayer.seekTo(ytPlayer.getCurrentTime()+5,true);
+  if (e.key==='ArrowLeft' && ytPlayer && playerReady) ytPlayer.seekTo(Math.max(0,ytPlayer.getCurrentTime()-5),true);
+  if (e.key===' ') {
+    e.preventDefault();
+    if (ytPlayer && playerReady) {
+      ytPlayer.getPlayerState()===1 ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+    }
+  }
+});
+
+// Enter on URL input
+document.getElementById('url-input').addEventListener('keydown', e => {
+  if(e.key==='Enter') loadFromUrl();
+});
+</script>
+</body>
+</html>
