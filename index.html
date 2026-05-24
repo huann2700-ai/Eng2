@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnTube - YouTube 英文學習模式</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #242424;
+    --border: #333;
+    --text: #e8e8e8;
+    --text2: #aaa;
+    --accent: #4fc3f7;
+    --accent2: #81d4fa;
+    --highlight-bg: rgba(79,195,247,0.15);
+    --highlight-border: #4fc3f7;
+    --word-hover: rgba(79,195,247,0.25);
+    --active-word: #4fc3f7;
+    --btn-bg: #2a2a2a;
+    --btn-hover: #3a3a3a;
+    --shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  [data-theme="light"] {
+    --bg: #f0f4f8;
+    --bg2: #ffffff;
+    --bg3: #e8edf2;
+    --border: #d0d7de;
+    --text: #1a1a2e;
+    --text2: #555;
+    --accent: #0077cc;
+    --accent2: #005fa3;
+    --highlight-bg: rgba(0,119,204,0.08);
+    --highlight-border: #0077cc;
+    --word-hover: rgba(0,119,204,0.15);
+    --active-word: #0077cc;
+    --btn-bg: #e2e8f0;
+    --btn-hover: #cbd5e0;
+    --shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ─── TOP BAR ─── */
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  #topbar h1 {
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  #url-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #url-input:focus { border-color: var(--accent); }
+  #load-btn {
+    padding: 8px 18px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  #load-btn:hover { opacity: 0.85; }
+
+  .top-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+  }
+  .icon-btn {
+    background: var(--btn-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .icon-btn:hover { background: var(--btn-hover); }
+  .icon-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* ─── MAIN LAYOUT ─── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    gap: 0;
+  }
+
+  /* ─── LEFT: PLAYER ─── */
+  #player-side {
+    width: 55%;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    border-right: 1px solid var(--border);
+  }
+  #player-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+  }
+  #player-wrapper iframe,
+  #player-wrapper #player {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #placeholder {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text2);
+    gap: 12px;
+    font-size: 0.95rem;
+  }
+  #placeholder .big-icon { font-size: 3rem; }
+
+  /* ─── CONTROLS ─── */
+  #controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    background: var(--btn-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .ctrl-btn:hover { background: var(--btn-hover); }
+  .ctrl-btn.active-btn { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  #speed-select {
+    background: var(--btn-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  #font-size-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  #font-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+  .ctrl-label { font-size: 0.78rem; color: var(--text2); }
+
+  /* ─── RIGHT: CAPTIONS ─── */
+  #caption-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  #caption-header {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  #caption-status {
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  #caption-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 10px;
+    scroll-behavior: smooth;
+  }
+  #caption-list::-webkit-scrollbar { width: 5px; }
+  #caption-list::-webkit-scrollbar-track { background: transparent; }
+  #caption-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── CAPTION ITEM ─── */
+  .caption-item {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    position: relative;
+  }
+  .caption-item:hover { background: var(--bg3); }
+  .caption-item.active {
+    background: var(--highlight-bg);
+    border-left-color: var(--highlight-border);
+  }
+  .caption-time {
+    font-size: 0.72rem;
+    color: var(--text2);
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .caption-en {
+    font-size: var(--caption-font-size, 1rem);
+    line-height: 1.6;
+    color: var(--text);
+    word-spacing: 2px;
+  }
+  .caption-zh {
+    font-size: calc(var(--caption-font-size, 1rem) * 0.82);
+    color: var(--text2);
+    margin-top: 4px;
+    font-style: italic;
+    min-height: 1.2em;
+  }
+
+  /* ─── WORD STYLES ─── */
+  .word {
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 3px;
+    padding: 1px 2px;
+    position: relative;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .word:hover { background: var(--word-hover); }
+  .word.active-word {
+    color: var(--active-word);
+    font-weight: 600;
+    animation: wordBounce 0.3s ease;
+  }
+  @keyframes wordBounce {
+    0% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(-4px) scale(1.12); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
+  /* ─── DICTIONARY TOOLTIP ─── */
+  .dict-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 180px;
+    max-width: 240px;
+    box-shadow: var(--shadow);
+    z-index: 999;
+    pointer-events: none;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .word:hover .dict-tooltip { display: block; }
+  .dict-word { font-weight: 700; color: var(--accent); font-size: 1rem; }
+  .dict-phonetic { color: var(--text2); font-size: 0.78rem; }
+  .dict-pos { color: #f9c74f; font-size: 0.75rem; margin-top: 3px; }
+  .dict-def { color: var(--text); margin-top: 2px; }
+  .dict-example { color: var(--text2); font-style: italic; font-size: 0.78rem; margin-top: 3px; }
+
+  /* ─── NO CAPTIONS MSG ─── */
+  #no-caption-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text2);
+    gap: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* ─── KEYBOARD HINTS ─── */
+  #kbd-hints {
+    padding: 6px 12px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--text2);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  kbd {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.7rem;
+    color: var(--text);
+  }
+
+  /* ─── LOADING ─── */
+  #loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    color: #fff;
+    font-size: 1rem;
+  }
+  #loading-overlay.show { display: flex; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid #333;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 700px) {
+    #main { flex-direction: column; }
+    #player-side { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid var(--border); }
+    #caption-side { min-height: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <span id="loading-msg">載入字幕中...</span>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <h1>🎧 LearnTube</h1>
+  <input id="url-input" type="text" placeholder="貼上 YouTube 網址，例如 https://www.youtube.com/watch?v=..." />
+  <button id="load-btn">▶ 載入</button>
+  <div class="top-controls">
+    <button class="icon-btn" id="theme-btn" title="切換深淺色">🌙 深色</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- LEFT -->
+  <div id="player-side">
+    <div id="player-wrapper">
+      <div id="placeholder">
+        <span class="big-icon">🎬</span>
+        <span>請輸入 YouTube 網址開始學習</span>
+      </div>
+      <div id="player"></div>
+    </div>
+    <!-- CONTROLS -->
+    <div id="controls">
+      <button class="ctrl-btn" id="play-pause-btn">▶ 播放</button>
+      <select id="speed-select" title="播放速度">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+      <button class="ctrl-btn" id="replay-btn">↩ 重播</button>
+      <button class="ctrl-btn" id="autopause-btn">⏸ 自動暫停</button>
+      <span class="ctrl-label">字幕大小</span>
+      <input type="range" id="font-size-slider" min="12" max="26" value="16" title="字幕大小">
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div id="caption-side">
+    <div id="caption-header">
+      <span>📝 即時字幕</span>
+      <span id="caption-status">等待影片載入</span>
+    </div>
+    <div id="caption-list">
+      <div id="no-caption-msg">
+        <span style="font-size:2rem">📭</span>
+        <span>尚無字幕</span>
+        <span style="font-size:0.8rem">載入影片後系統將嘗試抓取字幕</span>
+      </div>
+    </div>
+    <div id="kbd-hints">
+      <span><kbd>Space</kbd> 播放/暫停</span>
+      <span><kbd>←</kbd><kbd>→</kbd> 倒退/快轉 5s</span>
+      <span><kbd>R</kbd> 重播句子</span>
+      <span><kbd>A</kbd> 自動暫停</span>
+      <span><kbd>+</kbd><kbd>-</kbd> 字幕大小</span>
+      <span><kbd>T</kbd> 切換主題</span>
+    </div>
+  </div>
+</div>
+
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let ytPlayer = null;
+let captions = [];          // [{start, end, text}]
+let currentCapIdx = -1;
+let autoPause = false;
+let autoPausedAt = -1;
+let rafId = null;
+let playerReady = false;
+let captionFontSize = 16;
+let isDark = true;
+
+const FAKE_DICT = {
+  "the":   { phonetic: "/ðə/", pos: "art.", def: "定冠詞，用於特指", example: "The sun is bright." },
+  "be":    { phonetic: "/biː/", pos: "v.", def: "是；存在", example: "I want to be a teacher." },
+  "to":    { phonetic: "/tuː/", pos: "prep.", def: "到；為了", example: "Go to school." },
+  "of":    { phonetic: "/ɒv/", pos: "prep.", def: "…的", example: "A cup of water." },
+  "and":   { phonetic: "/ænd/", pos: "conj.", def: "和；與", example: "You and me." },
+  "in":    { phonetic: "/ɪn/", pos: "prep.", def: "在…之內", example: "She is in the room." },
+  "that":  { phonetic: "/ðæt/", pos: "pron./conj.", def: "那個；以致於", example: "I know that you're right." },
+  "have":  { phonetic: "/hæv/", pos: "v.", def: "有；擁有", example: "I have a dream." },
+  "it":    { phonetic: "/ɪt/", pos: "pron.", def: "它；這件事", example: "It is raining." },
+  "for":   { phonetic: "/fɔːr/", pos: "prep.", def: "為了；給", example: "This is for you." },
+  "not":   { phonetic: "/nɒt/", pos: "adv.", def: "不；沒有", example: "I do not agree." },
+  "on":    { phonetic: "/ɒn/", pos: "prep.", def: "在…上；在…（時間）", example: "Put it on the table." },
+  "with":  { phonetic: "/wɪð/", pos: "prep.", def: "和；用", example: "Come with me." },
+  "as":    { phonetic: "/æz/", pos: "conj./adv.", def: "當…時；像…一樣", example: "As you know..." },
+  "you":   { phonetic: "/juː/", pos: "pron.", def: "你；你們", example: "You are amazing." },
+  "this":  { phonetic: "/ðɪs/", pos: "pron.", def: "這；這個", example: "This is great." },
+};
+
+// ══════════════════════════════════════════════
+//  YouTube ID Parser
+// ══════════════════════════════════════════════
+function parseYTId(url) {
+  try {
+    const u = new URL(url.trim());
+    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0];
+    return u.searchParams.get('v') || null;
+  } catch {
+    const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  YouTube IFrame API
+// ══════════════════════════════════════════════
+function onYouTubeIframeAPIReady() {}
+
+function initPlayer(videoId) {
+  if (ytPlayer) {
+    ytPlayer.loadVideoById(videoId);
+    return;
+  }
+  ytPlayer = new YT.Player('player', {
+    videoId,
+    playerVars: {
+      rel: 0,
+      modestbranding: 1,
+      iv_load_policy: 3,
+      cc_load_policy: 0,
+      controls: 1,
+    },
+    events: {
+      onReady: (e) => {
+        playerReady = true;
+        document.getElementById('placeholder').style.display = 'none';
+        startRaf();
+      },
+      onStateChange: (e) => {
+        const state = e.data;
+        const btn = document.getElementById('play-pause-btn');
+        if (state === YT.PlayerState.PLAYING) {
+          btn.textContent = '⏸ 暫停';
+          startRaf();
+        } else {
+          btn.textContent = '▶ 播放';
+        }
+        if (state === YT.PlayerState.ENDED) stopRaf();
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  CAPTIONS FETCH  (via Invidious / timedtext API)
+// ══════════════════════════════════════════════
+async function fetchCaptions(videoId) {
+  showLoading('抓取字幕中...');
+  captions = [];
+  renderCaptions();
+
+  // Strategy 1: YouTube timedtext API (en)
+  const langs = ['en', 'en-US', 'en-GB', 'a.en'];
+  for (const lang of langs) {
+    try {
+      const url = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${lang}&fmt=json3`;
+      const r = await fetch(url);
+      if (r.ok) {
+        const data = await r.json();
+        if (data.events && data.events.length > 0) {
+          captions = parseJson3(data.events);
+          if (captions.length > 0) {
+            hideLoading();
+            document.getElementById('caption-status').textContent = `✅ ${captions.length} 條字幕 (${lang})`;
+            renderCaptions();
+            return;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // Strategy 2: Try auto-generated
+  try {
+    const url = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=en&kind=asr&fmt=json3`;
+    const r = await fetch(url);
+    if (r.ok) {
+      const data = await r.json();
+      if (data.events && data.events.length > 0) {
+        captions = parseJson3(data.events);
+        if (captions.length > 0) {
+          hideLoading();
+          document.getElementById('caption-status').textContent = `✅ ${captions.length} 條自動字幕`;
+          renderCaptions();
+          return;
+        }
+      }
+    }
+  } catch {}
+
+  // Strategy 3: Invidious (open instance)
+  const invidiousInstances = [
+    'https://invidious.io.lol',
+    'https://inv.nadeko.net',
+    'https://invidious.privacydev.net',
+  ];
+  for (const inst of invidiousInstances) {
+    try {
+      const r = await fetch(`${inst}/api/v1/captions/${videoId}`, { signal: AbortSignal.timeout(5000) });
+      if (r.ok) {
+        const data = await r.json();
+        const track = data.captions?.find(c =>
+          c.languageCode?.startsWith('en') || c.label?.toLowerCase().includes('english')
+        );
+        if (track && track.url) {
+          const vtt = await fetch(track.url.replace(inst, inst) + '&format=vtt', { signal: AbortSignal.timeout(5000) });
+          if (vtt.ok) {
+            const text = await vtt.text();
+            captions = parseVTT(text);
+            if (captions.length > 0) {
+              hideLoading();
+              document.getElementById('caption-status').textContent = `✅ ${captions.length} 條字幕 (Invidious)`;
+              renderCaptions();
+              return;
+            }
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // Fallback: demo captions
+  hideLoading();
+  captions = getDemoCaptions();
+  document.getElementById('caption-status').textContent = `⚠️ 使用範例字幕（CORS 限制）`;
+  renderCaptions();
+}
+
+function parseJson3(events) {
+  const result = [];
+  for (const ev of events) {
+    if (!ev.segs) continue;
+    const text = ev.segs.map(s => s.utf8 || '').join('').replace(/\n/g, ' ').trim();
+    if (!text) continue;
+    result.push({
+      start: (ev.tStartMs || 0) / 1000,
+      end: ((ev.tStartMs || 0) + (ev.dDurationMs || 3000)) / 1000,
+      text
+    });
+  }
+  return result;
+}
+
+function parseVTT(vtt) {
+  const result = [];
+  const lines = vtt.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    const timeMatch = line.match(/(\d{2}:\d{2}[:.]\d{2,3})\s+-->\s+(\d{2}:\d{2}[:.]\d{2,3})/);
+    if (timeMatch) {
+      const start = vttTimeToSec(timeMatch[1]);
+      const end = vttTimeToSec(timeMatch[2]);
+      const textLines = [];
+      i++;
+      while (i < lines.length && lines[i].trim() !== '') {
+        textLines.push(lines[i].replace(/<+>/g, '').trim());
+        i++;
+      }
+      const text = textLines.join(' ').trim();
+      if (text) result.push({ start, end, text });
+    } else {
+      i++;
+    }
+  }
+  return result;
+}
+
+function vttTimeToSec(t) {
+  const parts = t.replace(',', '.').split(':');
+  if (parts.length === 3) return +parts[0]*3600 + +parts[1]*60 + parseFloat(parts[2]);
+  return +parts[0]*60 + parseFloat(parts[1]);
+}
+
+function getDemoCaptions() {
+  return [
+    { start:0,   end:3.5,  text:"Welcome to this English learning experience." },
+    { start:3.5, end:7,    text:"Today we will practice listening and reading together." },
+    { start:7,   end:11,   text:"You can click any word to see its definition and pronunciation." },
+    { start:11,  end:15,   text:"Try using the replay button to listen to each sentence again." },
+    { start:15,  end:19,   text:"Adjust the speed to make it easier or more challenging." },
+    { start:19,  end:23,   text:"The auto-pause feature will stop after each sentence." },
+    { start:23,  end:27,   text:"This helps you repeat difficult phrases until you understand them." },
+    { start:27,  end:31,   text:"Learning English takes patience, practice, and persistence." },
+    { start:31,  end:35,   text:"Keep going and you will see great improvements over time." },
+    { start:35,  end:39,   text:"Remember: consistency is the key to language learning success." },
+  ];
+}
+
+// ══════════════════════════════════════════════
+//  RENDER CAPTIONS
+// ══════════════════════════════════════════════
+function renderCaptions() {
+  const list = document.getElementById('caption-list');
+  const msg = document.getElementById('no-caption-msg');
+
+  if (captions.length === 0) {
+    msg.style.display = 'flex';
+    list.innerHTML = '';
+    list.appendChild(msg);
+    return;
+  }
+
+  msg.style.display = 'none';
+  list.innerHTML = '';
+
+  captions.forEach((cap, idx) => {
+    const item = document.createElement('div');
+    item.className = 'caption-item';
+    item.id = `cap-${idx}`;
+    item.dataset.idx = idx;
+
+    const timeStr = formatTime(cap.start);
+    const wordsHtml = buildWordsHtml(cap.text);
+
+    item.innerHTML = `
+      <div class="caption-time">${timeStr}</div>
+      <div class="caption-en" id="cap-en-${idx}">${wordsHtml}</div>
+      <div class="caption-zh">（中文翻譯預留區）</div>
+    `;
+
+    item.addEventListener('click', (e) => {
+      if (e.target.classList.contains('word') || e.target.closest('.dict-tooltip')) return;
+      if (ytPlayer && playerReady) {
+        ytPlayer.seekTo(cap.start, true);
+        ytPlayer.playVideo();
+      }
+    });
+
+    list.appendChild(item);
+  });
+
+  updateFontSize();
+}
+
+function buildWordsHtml(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    const clean = part.replace(//g, '').toLowerCase();
+    const dictData = FAKE_DICT[clean];
+    const tooltip = dictData
+      ? `<span class="dict-tooltip">
+           <span class="dict-word">${clean}</span>
+           <span class="dict-phonetic"> ${dictData.phonetic}</span>
+           <div class="dict-pos">${dictData.pos}</div>
+           <div class="dict-def">${dictData.def}</div>
+           <div class="dict-example">"${dictData.example}"</div>
+         </span>`
+      : `<span class="dict-tooltip">
+           <span class="dict-word">${clean}</span>
+           <div class="dict-def" style="color:var(--text2);font-size:0.8rem">（點擊查詢字典）</div>
+         </span>`;
+    return `<span class="word" data-word="${clean}">${part}${tooltip}</span>`;
+  }).join('');
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════
+//  RAF SYNC LOOP
+// ══════════════════════════════════════════════
+function startRaf() {
+  if (rafId) return;
+  loop();
+}
+function stopRaf() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+function loop() {
+  syncCaptions();
+  rafId = requestAnimationFrame(loop);
+}
+
+function syncCaptions() {
+  if (!ytPlayer || !playerReady) return;
+  let t;
+  try { t = ytPlayer.getCurrentTime(); } catch { return; }
+
+  const idx = findCapIdx(t);
+
+  // auto-pause logic
+  if (autoPause && currentCapIdx >= 0 && idx !== currentCapIdx) {
+    const prev = captions[currentCapIdx];
+    if (t >= prev.end - 0.05 && autoPausedAt !== currentCapIdx) {
+      autoPausedAt = currentCapIdx;
+      try { ytPlayer.pauseVideo(); } catch {}
+    }
+  }
+
+  if (idx === currentCapIdx) return;
+  currentCapIdx = idx;
+
+  // remove old active
+  document.querySelectorAll('.caption-item.active').forEach(el => {
+    el.classList.remove('active');
+    el.querySelectorAll('.word.active-word').forEach(w => w.classList.remove('active-word'));
+  });
+
+  if (idx < 0) return;
+
+  const item = document.getElementById(`cap-${idx}`);
+  if (!item) return;
+  item.classList.add('active');
+
+  // scroll into view
+  item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // animate words one by one
+  const words = item.querySelectorAll('.word');
+  words.forEach((w, i) => {
+    setTimeout(() => {
+      // clear previous
+      item.querySelectorAll('.word.active-word').forEach(x => x.classList.remove('active-word'));
+      w.classList.add('active-word');
+    }, i * 120);
+  });
+}
+
+function findCapIdx(t) {
+  for (let i = 0; i < captions.length; i++) {
+    if (t >= captions[i].start && t < captions[i].end) return i;
+  }
+  return -1;
+}
+
+// ══════════════════════════════════════════════
+//  UI CONTROLS
+// ══════════════════════════════════════════════
+document.getElementById('load-btn').addEventListener('click', loadVideo);
+document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') loadVideo(); });
+
+async function loadVideo() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) return;
+  const id = parseYTId(url);
+  if (!id) { alert('無效的 YouTube 網址，請確認格式正確'); return; }
+
+  document.getElementById('caption-status').textContent = '載入中...';
+  initPlayer(id);
+  await fetchCaptions(id);
+}
+
+// play/pause
+document.getElementById('play-pause-btn').addEventListener('click', () => {
+  if (!ytPlayer || !playerReady) return;
+  try {
+    const state = ytPlayer.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+    else ytPlayer.playVideo();
+  } catch {}
+});
+
+// speed
+document.getElementById('speed-select').addEventListener('change', e => {
+  if (ytPlayer && playerReady) {
+    try { ytPlayer.setPlaybackRate(parseFloat(e.target.value)); } catch {}
+  }
+});
+
+// replay
+document.getElementById('replay-btn').addEventListener('click', replayCurrent);
+function replayCurrent() {
+  if (!ytPlayer || !playerReady || currentCapIdx < 0) return;
+  autoPausedAt = -1;
+  try {
+    ytPlayer.seekTo(captions[currentCapIdx].start, true);
+    ytPlayer.playVideo();
+  } catch {}
+}
+
+// auto-pause
+document.getElementById('autopause-btn').addEventListener('click', () => {
+  autoPause = !autoPause;
+  autoPausedAt = -1;
+  const btn = document.getElementById('autopause-btn');
+  btn.textContent = autoPause ? '▶ 自動暫停 ON' : '⏸ 自動暫停';
+  btn.classList.toggle('active-btn', autoPause);
+});
+
+// font size
+document.getElementById('font-size-slider').addEventListener('input', e => {
+  captionFontSize = parseInt(e.target.value);
+  updateFontSize();
+});
+function updateFontSize() {
+  document.documentElement.style.setProperty('--caption-font-size', captionFontSize + 'px');
+}
+
+// theme
+document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙 深色' : '☀️ 淺色';
+}
+
+// ══════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+  switch(e.key) {
+    case ' ':
+      e.preventDefault();
+      document.getElementById('play-pause-btn').click();
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      if (ytPlayer && playerReady) try { ytPlayer.seekTo(ytPlayer.getCurrentTime() - 5, true); } catch {}
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      if (ytPlayer && playerReady) try { ytPlayer.seekTo(ytPlayer.getCurrentTime() + 5, true); } catch {}
+      break;
+    case 'r': case 'R':
+      replayCurrent();
+      break;
+    case 'a': case 'A':
+      document.getElementById('autopause-btn').click();
+      break;
+    case '+': case '=':
+      captionFontSize = Math.min(26, captionFontSize + 1);
+      document.getElementById('font-size-slider').value = captionFontSize;
+      updateFontSize();
+      break;
+    case '-':
+      captionFontSize = Math.max(12, captionFontSize - 1);
+      document.getElementById('font-size-slider').value = captionFontSize;
+      updateFontSize();
+      break;
+    case 't': case 'T':
+      toggleTheme();
+      break;
+  }
+});
+
+// ══════════════════════════════════════════════
+//  LOADING HELPERS
+// ══════════════════════════════════════════════
+function showLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg || '載入中...';
+  document.getElementById('loading-overlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+updateFontSize();
+</script>
+</body>
+</html>
